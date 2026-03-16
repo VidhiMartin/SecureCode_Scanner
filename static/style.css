@@ -9,7 +9,7 @@ body {
 /* Hero Section */
 .hero {
     text-align: center;
-    padding: 80px 20px 40px 20px; /* slightly less bottom padding */
+    padding: 80px 20px 40px 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -40,27 +40,36 @@ body {
 
 .feature-list li {
     display: flex;
-    align-items: center; /* vertically center icons with text */
+    align-items: center; /* vertically center icon and text */
     font-size: 1.05em;
     margin-bottom: 18px; /* spacing between bullets */
     color: #c9d1d9;
+    line-height: 1.5em; /* centers text with icon */
 }
 
+/* Bullet icons */
 .feature-list li i {
+    display: inline-flex;       
+    align-items: center;        
+    justify-content: center;    
     font-size: 1.3em;
     margin-right: 12px;
     flex-shrink: 0;
-    line-height: 1.4em; /* ensures vertical alignment */
 }
 
 /* Bullet colors */
-.bullet-vuln { color: #f59e0b; }   /* amber */
-.bullet-cve  { color: #22c55e; }   /* green */
-.bullet-patch{ color: #3b82f6; }   /* blue */
+.bullet-vuln { color: #f59e0b !important; }   /* amber */
+.bullet-cve  { color: #22c55e !important; }   /* green */
+.bullet-patch{ color: #3b82f6 !important; }   /* blue */
 
-/* Crystal Blue 3D Shield */
+/* Add spacing after colon in bullet text */
+.feature-list li strong::after {
+    content: " ";
+}
+
+/* Crystal Blue 3D Shield - slightly bigger */
 .shield-icon {
-    font-size: 5em;
+    font-size: 6em; /* increased from 5em */
     background: linear-gradient(145deg, #3fa9f5, #0f52ba);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -171,7 +180,7 @@ pre {
 /* Responsive adjustments */
 @media (max-width: 768px){
     .headline { font-size: 2em; }
-    .shield-icon { font-size: 4em; }
+    .shield-icon { font-size: 5em; } /* slightly smaller on mobile */
     .scanner-card, .result-card { padding: 20px; margin: 15px; }
     .feature-list li { font-size: 1em; }
 }
