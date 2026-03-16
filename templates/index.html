@@ -1,67 +1,66 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>LLM-Powered Source Code Scanner</title>
     <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
-
 <body>
 
 <div class="container">
+    <div class="header">
+        <i class="fas fa-shield-alt shield-icon"></i>
+        <h1>Secure Source Code Scanner</h1>
+        <p>Scan multi-language codebases for vulnerabilities using AI.</p>
+    </div>
 
-<h1>LLM-Powered Source Code Scanner</h1>
+    <form id="scanForm">
+        <div class="form-group">
+            <label for="language">Language</label>
+            <select name="language" id="language">
+                <option>python</option>
+                <option>javascript</option>
+                <option>java</option>
+                <option>c</option>
+                <option>cpp</option>
+                <option>csharp</option>
+                <option>go</option>
+                <option>rust</option>
+                <option>php</option>
+                <option>ruby</option>
+                <option>typescript</option>
+            </select>
+        </div>
 
-<p>
-Scan multi-language codebases for vulnerabilities using AI.
-</p>
+        <div class="form-group">
+            <label for="code">Paste Source Code</label>
+            <textarea name="code" id="code" rows="15" placeholder="Paste your code here..."></textarea>
+        </div>
 
-<form id="scanForm">
+        <button type="submit">Scan Code <i class="fas fa-search"></i></button>
+    </form>
 
-<label>Language</label>
-<select name="language">
-<option>python</option>
-<option>javascript</option>
-<option>java</option>
-<option>c</option>
-<option>cpp</option>
-<option>csharp</option>
-<option>go</option>
-<option>rust</option>
-<option>php</option>
-<option>ruby</option>
-<option>typescript</option>
-</select>
-
-<label>Paste Source Code</label>
-
-<textarea name="code" rows="18"></textarea>
-
-<button type="submit">Scan Code</button>
-
-</form>
-
-<pre id="result"></pre>
-
+    <div class="result-container">
+        <h2>Analysis Result</h2>
+        <pre id="result"></pre>
+    </div>
 </div>
 
 <script>
-
 document.getElementById("scanForm").onsubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    const form = new FormData(e.target)
+    const form = new FormData(e.target);
 
     const res = await fetch("/scan", {
         method: "POST",
         body: form
-    })
+    });
 
-    const data = await res.json()
-
-    document.getElementById("result").textContent =
-        JSON.stringify(data, null, 2)
+    const data = await res.json();
+    document.getElementById("result").textContent = JSON.stringify(data, null, 2);
 }
-
 </script>
 
 </body>
