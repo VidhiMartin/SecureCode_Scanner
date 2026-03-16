@@ -2,18 +2,21 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Secure AI Source Code Scanner</title>
+<title>LLM-Powered Secure Code Scanner</title>
 <link rel="stylesheet" href="/static/style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
+
 <div class="hero">
     <div class="hero-content">
         <i class="fas fa-shield-alt shield-icon"></i>
-        <h1 class="headline">Secure AI Source Code Scanner</h1>
-        <p class="subhead">Scan code across 10+ languages, detect vulnerabilities, and get patch suggestions instantly.</p>
+        <h1 class="headline">LLM-Powered Secure Code Scanner</h1>
+        <p class="subhead">
+        Powered by <strong>meta-llama/llama-3.3-70b-instruct</strong>. Designed for developers to start coding securely from day one, regardless of age or experience.
+        </p>
     </div>
 </div>
 
@@ -45,7 +48,7 @@
     </form>
 </div>
 
-<div class="result-card">
+<div class="result-card" id="result-card" style="display: none;">
     <h2><i class="fas fa-clipboard-list"></i> Analysis Result</h2>
     <pre id="result" class="line-numbers"><code class="language-json"></code></pre>
 </div>
@@ -53,15 +56,40 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
 <script>
+function isValidPrompt(code) {
+    // Basic sanitation: prevent empty or excessively long code
+    if (!code || code.length < 10 || code.length > 20000) return false;
+    // Could extend to disallow malicious keywords, e.g., system commands
+    return true;
+}
+
 document.getElementById("scanForm").onsubmit = async (e) => {
     e.preventDefault();
+    const code = document.getElementById("code").value.trim();
+    const resultCard = document.getElementById("result-card");
+
+    if (!isValidPrompt(code)) {
+        alert("Please provide valid code (10–20,000 characters).");
+        resultCard.style.display = "none";
+        return;
+    }
+
     const form = new FormData(e.target);
     const res = await fetch("/scan", { method: "POST", body: form });
     const data = await res.json();
+
+    if (data.error) {
+        alert("Error: " + data.error);
+        resultCard.style.display = "none";
+        return;
+    }
+
     const codeBlock = document.querySelector("#result code");
     codeBlock.textContent = JSON.stringify(data, null, 2);
     Prism.highlightElement(codeBlock);
-}
+    resultCard.style.display = "block";
+};
 </script>
+
 </body>
 </html>
