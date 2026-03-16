@@ -1,90 +1,54 @@
-# utils.py
-
 import os
-import re
-import json
-import bleach
 import requests
 
-API_KEY = os.getenv("LLM_API_KEY")
-LLM_ENDPOINT = "https://api.example-llm.com/v1/chat/completions"
+LLM_API_KEY = os.getenv("LLM_API_KEY")
 
-ALLOWED_LANGUAGES = [
-    ("python", "Python"),
-    ("javascript", "JavaScript"),
-    ("java", "Java"),
-    ("c", "C"),
-    ("cpp", "C++"),
-    ("csharp", "C#"),
-    ("go", "Go"),
-    ("rust", "Rust"),
-    ("php", "PHP"),
-    ("ruby", "Ruby"),
-    ("typescript", "TypeScript"),
-]
+LLM_ENDPOINT = "https://openrouter.ai/api/v1/chat/completions"
+
+MODEL = "llama-3.3-70b-instruct"
 
 
-def sanitize_input(text: str) -> str:
-    cleaned = bleach.clean(text, tags=[], strip=True)
-    cleaned = re.sub(r"\\x00", "", cleaned)
-    return cleaned
-
-
-def scan_code_with_llm(language: str, code: str):
+def analyze_code(code, language):
 
     prompt = f"""
-You are a senior application security engineer.
+You are an application security expert.
 
-Analyze the following {language} source code.
+Analyze the following {language} code.
 
 Tasks:
-1. Detect vulnerabilities
-2. Map them to CWE and CVE references if applicable
-3. Explain the security risk
-4. Provide a secure patch or fix
+1. Identify vulnerabilities - concisely
+2. Reference CVE if known
+3. Reference CWE categories if known
+4. Explain risk - in 1 concise line
+5. Provide secure patched code - concisely
+6. Provide mitigation/patch advice - concisely no fluff. 
 
-Return structured JSON:
-
-{{
-  "vulnerabilities": [
-    {{
-      "type": "",
-      "cwe": "",
-      "cve": "",
-      "description": "",
-      "fix": ""
-    }}
-  ]
-}}
+Return JSON with:
+- vulnerabilities
+- cwe
+- possible_cve
+- risk
+- patch
+- explanation
 
 Code:
 {code}
 """
 
     headers = {
-        "Authorization": f"Bearer {API_KEY}",
-        "Content-Type": "application/json"
-    }
+    "Authorization": f"Bearer {os.getenv('OPENROUTER_API_KEY')}",
+    "Content-Type": "application/json"
+}
 
     payload = {
-        "model": "llama-3.3-70b-instruct",
+        "model": MODEL,
         "messages": [
-            {"role": "system", "content": "You are a secure code analysis engine."},
+            {"role": "system", "content": "You are an expert security auditor."},
             {"role": "user", "content": prompt}
         ],
         "temperature": 0.2
     }
 
-    r = requests.post(LLM_ENDPOINT, headers=headers, json=payload, timeout=30)
+    r = requests.post(LLM_ENDPOINT, headers=headers, json=payload)
 
-    if r.status_code != 200:
-        return {"error": "LLM request failed"}
-
-    try:
-        data = r.json()
-        response_text = data["choices"][0]["message"]["content"]
-        return json.loads(response_text)
-    except Exception:
-        return {"error": "Invalid response from LLM"}
-
-
+    return {"analysis": r.json()}
