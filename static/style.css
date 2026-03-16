@@ -2,7 +2,7 @@
 body {
     margin: 0;
     font-family: 'Segoe UI', sans-serif;
-    background-color: #0c0f14; 
+    background-color: #0c0f14; /* enterprise-grade dark background */
     color: #c9d1d9;
 }
 
@@ -30,29 +30,33 @@ body {
     line-height: 1.6em;
 }
 
-/* Feature list */
+/* Feature list with colored bullets and spacing */
 .feature-list {
     list-style: none;
     padding-left: 0;
     max-width: 700px;
-    margin: 0 auto;
+    margin: 0 auto 40px auto;
 }
 
 .feature-list li {
     display: flex;
     align-items: flex-start;
     font-size: 1.05em;
-    margin-bottom: 12px;
+    margin-bottom: 18px; /* 18px space between bullets */
     color: #c9d1d9;
 }
 
 .feature-list li i {
-    color: #3fa9f5;
-    font-size: 1.2em;
+    font-size: 1.3em;
     margin-right: 12px;
     flex-shrink: 0;
     margin-top: 2px;
 }
+
+/* Individual bullet colors */
+.bullet-vuln { color: #f59e0b; }   /* amber for vulnerabilities */
+.bullet-cve  { color: #22c55e; }   /* green for CVE/CWE references */
+.bullet-patch{ color: #3b82f6; }   /* blue for patches */
 
 /* Crystal Blue 3D Shield */
 .shield-icon {
@@ -157,4 +161,5 @@ pre {
     .headline { font-size: 2em; }
     .shield-icon { font-size: 4em; }
     .scanner-card, .result-card { padding: 20px; margin: 15px; }
+    .feature-list li { font-size: 1em; }
 }
