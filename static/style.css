@@ -1,8 +1,8 @@
-/* General dark theme like IDE */
+/* General dark theme */
 body {
     margin: 0;
     font-family: 'Segoe UI', sans-serif;
-    background-color: #0d1117; /* true dark background */
+    background-color: #0c0f14; /* enterprise-grade dark background */
     color: #c9d1d9;
 }
 
@@ -16,17 +16,18 @@ body {
 }
 
 .headline {
-    font-size: 2.6em;
+    font-size: 2.8em;
     margin: 20px 0 10px 0;
     font-weight: 700;
     color: #c9d1d9;
 }
 
 .subhead {
-    font-size: 1.2em;
+    font-size: 1.15em;
     color: #8b949e;
     max-width: 700px;
     margin: 0 auto;
+    line-height: 1.6em;
 }
 
 /* Crystal Blue 3D Shield */
@@ -35,7 +36,7 @@ body {
     background: linear-gradient(145deg, #3fa9f5, #0f52ba);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    text-shadow: 2px 2px 15px rgba(63, 169, 245, 0.6);
+    text-shadow: 2px 2px 20px rgba(63, 169, 245, 0.6);
     transform: rotateY(10deg);
     margin-bottom: 15px;
     animation: float 2.5s infinite ease-in-out;
@@ -59,7 +60,7 @@ body {
 
 /* Form Rows */
 .form-row {
-    margin-bottom: 22px;
+    margin-bottom: 20px;
 }
 
 label {
@@ -83,6 +84,7 @@ select, textarea {
     color: #c9d1d9;
     font-family: monospace;
     font-size: 1em;
+    box-sizing: border-box;
 }
 
 select:focus, textarea:focus {
