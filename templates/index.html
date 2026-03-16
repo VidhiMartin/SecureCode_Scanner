@@ -15,8 +15,15 @@
         <i class="fas fa-shield-alt shield-icon"></i>
         <h1 class="headline">LLM-Powered Secure Code Scanner</h1>
         <p class="subhead">
-        Powered by <strong>meta-llama/llama-3.3-70b-instruct</strong>. Designed for developers to start coding securely from day one, regardless of age or experience.
+        Powered by <strong>meta-llama/llama-3.3-70b-instruct</strong>.  
+        Designed to enable developers to adopt secure coding practices from day one with minimal onboarding.
         </p>
+
+        <ul class="feature-list">
+            <li><i class="fas fa-bug"></i> <strong>Vulnerability Detection:</strong> Scans source code for security weaknesses.</li>
+            <li><i class="fas fa-shield-virus"></i> <strong>CVE/CWE Reference:</strong> Identifies known vulnerabilities in real time.</li>
+            <li><i class="fas fa-wrench"></i> <strong>Patch & Mitigation Suggestions:</strong> Provides actionable fixes to remediate issues securely.</li>
+        </ul>
     </div>
 </div>
 
@@ -57,9 +64,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
 <script>
 function isValidPrompt(code) {
-    // Basic sanitation: prevent empty or excessively long code
     if (!code || code.length < 10 || code.length > 20000) return false;
-    // Could extend to disallow malicious keywords, e.g., system commands
     return true;
 }
 
