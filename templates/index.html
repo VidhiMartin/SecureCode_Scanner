@@ -1,100 +1,186 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>LLM-Powered Secure Code Scanner</title>
-<link rel="stylesheet" href="/static/style.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body>
-
-<div class="hero">
-    <div class="hero-content">
-        <i class="fas fa-shield-alt shield-icon"></i>
-        <h1 class="headline">LLM-Powered Secure Code Scanner</h1>
-        <p class="subhead">
-        Powered by <strong>meta-llama/llama-3.3-70b-instruct</strong>.  
-        Designed to enable developers to adopt secure coding practices from day one with minimal onboarding. The tool automates real-time threat intelligence and vulnerability assessments to encourage secure coding practices. 
-        </p>
-
-        <ul class="feature-list">
-            <li><i class="fas fa-bug"></i> <strong>Vulnerability Detection:</strong>  Scans source code for security weaknesses.</li>
-            <li><i class="fas fa-shield-virus"></i> <strong>CVE/CWE Reference:</strong>  Identifies known vulnerabilities in real time.</li>
-            <li><i class="fas fa-wrench"></i> <strong>Patch & Mitigation Suggestions:</strong>  Provides actionable fixes.</li>
-        </ul>
-    </div>
-</div>
-
-<div class="scanner-card">
-    <form id="scanForm">
-        <div class="form-row">
-            <label for="language"><i class="fas fa-code"></i> Language</label>
-            <select name="language" id="language">
-                <option>python</option>
-                <option>javascript</option>
-                <option>java</option>
-                <option>c</option>
-                <option>cpp</option>
-                <option>csharp</option>
-                <option>go</option>
-                <option>rust</option>
-                <option>php</option>
-                <option>ruby</option>
-                <option>typescript</option>
-            </select>
-        </div>
-
-        <div class="form-row">
-            <label for="code"><i class="fas fa-terminal"></i> Paste Source Code</label>
-            <textarea name="code" id="code" rows="15" placeholder="Paste your code here..."></textarea>
-        </div>
-
-        <button type="submit"><i class="fas fa-magnifying-glass"></i> Scan Code</button>
-    </form>
-</div>
-
-<div class="result-card" id="result-card" style="display: none;">
-    <h2><i class="fas fa-clipboard-list"></i> Analysis Result</h2>
-    <pre id="result" class="line-numbers"><code class="language-json"></code></pre>
-</div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
-<script>
-function isValidPrompt(code) {
-    if (!code || code.length < 10 || code.length > 20000) return false;
-    return true;
+/* General dark theme */
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #0c0f14;
+    color: #c9d1d9;
 }
 
-document.getElementById("scanForm").onsubmit = async (e) => {
-    e.preventDefault();
-    const code = document.getElementById("code").value.trim();
-    const resultCard = document.getElementById("result-card");
+/* Hero Section */
+.hero {
+    text-align: center;
+    padding: 80px 20px 40px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
 
-    if (!isValidPrompt(code)) {
-        alert("Please provide valid code (10–20,000 characters).");
-        resultCard.style.display = "none";
-        return;
-    }
+.headline {
+    font-size: 2.8em;
+    margin: 20px 0 10px 0;
+    font-weight: 700;
+    color: #c9d1d9;
+}
 
-    const form = new FormData(e.target);
-    const res = await fetch("/scan", { method: "POST", body: form });
-    const data = await res.json();
+.subhead {
+    font-size: 1.15em;
+    color: #8b949e;
+    max-width: 700px;
+    margin: 0 auto 25px auto;
+    line-height: 1.6em;
+}
 
-    if (data.error) {
-        alert("Error: " + data.error);
-        resultCard.style.display = "none";
-        return;
-    }
+/* Feature list */
+.feature-list {
+    list-style: none;
+    padding-left: 0;
+    max-width: 700px;
+    margin: 0 auto 40px auto;
+}
 
-    const codeBlock = document.querySelector("#result code");
-    codeBlock.textContent = JSON.stringify(data, null, 2);
-    Prism.highlightElement(codeBlock);
-    resultCard.style.display = "block";
-};
-</script>
+.feature-list li {
+    display: flex;
+    align-items: center; /* vertically center icon and text */
+    font-size: 1.05em;
+    margin-bottom: 18px; /* spacing between bullets */
+    color: #c9d1d9;
+    line-height: 1.5em; /* centers text with icon */
+}
 
-</body>
-</html>
+/* Bullet icons */
+.feature-list li i {
+    display: inline-flex;       
+    align-items: center;        
+    justify-content: center;    
+    font-size: 1.3em;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+/* Bullet colors */
+.bullet-vuln { color: #f59e0b !important; }   /* amber */
+.bullet-cve  { color: #22c55e !important; }   /* green */
+.bullet-patch{ color: #3b82f6 !important; }   /* blue */
+
+/* Add spacing after colon in bullet text */
+.feature-list li strong::after {
+    content: " ";
+}
+
+/* Crystal Blue 3D Shield */
+.shield-icon {
+    font-size: 7em;
+    background: linear-gradient(145deg, #3fa9f5, #0f52ba);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 2px 2px 20px rgba(63, 169, 245, 0.6);
+    transform: rotateY(10deg);
+    margin-bottom: 15px;
+    animation: float 2.5s infinite ease-in-out;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0) rotateY(10deg);}
+    50% { transform: translateY(-12px) rotateY(10deg);}
+}
+
+/* Card Layout for Form */
+.scanner-card {
+    max-width: 900px;
+    margin: -40px auto 20px auto; /* moves card slightly above for balance */
+    background: #161b22;
+    padding: 30px 35px;
+    border-radius: 16px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+    overflow: hidden;
+}
+
+/* Result Card */
+.result-card {
+    max-width: 900px;
+    margin: 20px auto 60px auto;
+    background: #161b22;
+    padding: 30px 35px;
+    border-radius: 16px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+    overflow: hidden;
+}
+
+/* Form Rows */
+.form-row {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #c9d1d9;
+}
+
+label i {
+    margin-right: 6px;
+    color: #3fa9f5;
+}
+
+select, textarea {
+    width: 100%;
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid #30363d;
+    background: #0d1117;
+    color: #c9d1d9;
+    font-family: monospace;
+    font-size: 1em;
+    box-sizing: border-box;
+}
+
+select:focus, textarea:focus {
+    outline: none;
+    box-shadow: 0 0 10px #3fa9f5;
+    border-color: #3fa9f5;
+}
+
+/* Button */
+button {
+    background: #3fa9f5;
+    color: #0d1117;
+    font-weight: bold;
+    border: none;
+    padding: 14px 30px;
+    font-size: 1em;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    background: #0f52ba;
+    transform: translateY(-2px);
+}
+
+/* Result Card Heading */
+.result-card h2 {
+    margin-top: 0;
+    color: #3fa9f5;
+    font-size: 1.5em;
+    margin-bottom: 15px;
+}
+
+pre {
+    background: #0d1117;
+    padding: 20px;
+    border-radius: 12px;
+    max-height: 450px;
+    overflow: auto;
+    color: #c9d1d9;
+    font-family: monospace;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px){
+    .headline { font-size: 2em; }
+    .shield-icon { font-size: 4em; }
+    .scanner-card, .result-card { padding: 20px; margin: 15px; }
+    .feature-list li { font-size: 1em; }
+}
