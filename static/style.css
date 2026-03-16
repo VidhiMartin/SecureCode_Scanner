@@ -2,14 +2,14 @@
 body {
     margin: 0;
     font-family: 'Segoe UI', sans-serif;
-    background-color: #0c0f14; /* enterprise-grade dark background */
+    background-color: #0c0f14;
     color: #c9d1d9;
 }
 
 /* Hero Section */
 .hero {
     text-align: center;
-    padding: 80px 20px 60px 20px;
+    padding: 80px 20px 40px 20px; /* slightly less bottom padding */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -30,7 +30,7 @@ body {
     line-height: 1.6em;
 }
 
-/* Feature list with colored bullets and spacing */
+/* Feature list */
 .feature-list {
     list-style: none;
     padding-left: 0;
@@ -40,9 +40,9 @@ body {
 
 .feature-list li {
     display: flex;
-    align-items: flex-start;
+    align-items: center; /* vertically center icons with text */
     font-size: 1.05em;
-    margin-bottom: 18px; /* 18px space between bullets */
+    margin-bottom: 18px; /* spacing between bullets */
     color: #c9d1d9;
 }
 
@@ -50,13 +50,13 @@ body {
     font-size: 1.3em;
     margin-right: 12px;
     flex-shrink: 0;
-    margin-top: 2px;
+    line-height: 1.4em; /* ensures vertical alignment */
 }
 
-/* Individual bullet colors */
-.bullet-vuln { color: #f59e0b; }   /* amber for vulnerabilities */
-.bullet-cve  { color: #22c55e; }   /* green for CVE/CWE references */
-.bullet-patch{ color: #3b82f6; }   /* blue for patches */
+/* Bullet colors */
+.bullet-vuln { color: #f59e0b; }   /* amber */
+.bullet-cve  { color: #22c55e; }   /* green */
+.bullet-patch{ color: #3b82f6; }   /* blue */
 
 /* Crystal Blue 3D Shield */
 .shield-icon {
@@ -75,10 +75,21 @@ body {
     50% { transform: translateY(-12px) rotateY(10deg);}
 }
 
-/* Card Layout */
-.scanner-card, .result-card {
+/* Card Layout for Form */
+.scanner-card {
     max-width: 900px;
-    margin: 20px auto;
+    margin: -40px auto 20px auto; /* moves card slightly above for balance */
+    background: #161b22;
+    padding: 30px 35px;
+    border-radius: 16px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+    overflow: hidden;
+}
+
+/* Result Card */
+.result-card {
+    max-width: 900px;
+    margin: 20px auto 60px auto;
     background: #161b22;
     padding: 30px 35px;
     border-radius: 16px;
@@ -105,9 +116,9 @@ label i {
 
 select, textarea {
     width: 100%;
-    padding: 14px 16px;
-    border-radius: 10px;
-    border: none;
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid #30363d;
     background: #0d1117;
     color: #c9d1d9;
     font-family: monospace;
@@ -118,6 +129,7 @@ select, textarea {
 select:focus, textarea:focus {
     outline: none;
     box-shadow: 0 0 10px #3fa9f5;
+    border-color: #3fa9f5;
 }
 
 /* Button */
@@ -138,7 +150,7 @@ button:hover {
     transform: translateY(-2px);
 }
 
-/* Result Card */
+/* Result Card Heading */
 .result-card h2 {
     margin-top: 0;
     color: #3fa9f5;
