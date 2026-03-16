@@ -6,7 +6,7 @@ from utils import analyze_code
 app = Flask(__name__)
 
 # Security settings
-MAX_CODE_LENGTH = 20000
+MAX_CODE_LENGTH = 40000
 ALLOWED_LANGUAGES = {
     "python", "javascript", "java", "c", "cpp",
     "csharp", "go", "rust", "php", "ruby", "typescript"
