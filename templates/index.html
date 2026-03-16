@@ -1,66 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Secure AI Source Code Scanner</title>
-    <link rel="stylesheet" href="/static/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"/>
+<meta charset="UTF-8">
+<title>Secure AI Source Code Scanner</title>
+<link rel="stylesheet" href="/static/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
-    <div class="hero">
-        <div class="hero-content">
-            <i class="fas fa-shield-alt shield-icon"></i>
-            <h1 class="headline">Secure AI Source Code Scanner</h1>
-            <p class="subhead">Scan code across 10+ languages, detect vulnerabilities, and get patch suggestions instantly.</p>
+<div class="hero">
+    <div class="hero-content">
+        <i class="fas fa-shield-alt shield-icon"></i>
+        <h1 class="headline">Secure AI Source Code Scanner</h1>
+        <p class="subhead">Scan code across 10+ languages, detect vulnerabilities, and get patch suggestions instantly.</p>
+    </div>
+</div>
+
+<div class="scanner-card">
+    <form id="scanForm">
+        <div class="form-row">
+            <label for="language"><i class="fas fa-code"></i> Language</label>
+            <select name="language" id="language">
+                <option>python</option>
+                <option>javascript</option>
+                <option>java</option>
+                <option>c</option>
+                <option>cpp</option>
+                <option>csharp</option>
+                <option>go</option>
+                <option>rust</option>
+                <option>php</option>
+                <option>ruby</option>
+                <option>typescript</option>
+            </select>
         </div>
-    </div>
 
-    <div class="scanner-card">
-        <form id="scanForm">
-            <div class="form-row">
-                <label for="language"><i class="fas fa-code"></i> Language</label>
-                <select name="language" id="language">
-                    <option>python</option>
-                    <option>javascript</option>
-                    <option>java</option>
-                    <option>c</option>
-                    <option>cpp</option>
-                    <option>csharp</option>
-                    <option>go</option>
-                    <option>rust</option>
-                    <option>php</option>
-                    <option>ruby</option>
-                    <option>typescript</option>
-                </select>
-            </div>
+        <div class="form-row">
+            <label for="code"><i class="fas fa-terminal"></i> Paste Source Code</label>
+            <textarea name="code" id="code" rows="15" placeholder="Paste your code here..."></textarea>
+        </div>
 
-            <div class="form-row">
-                <label for="code"><i class="fas fa-terminal"></i> Paste Source Code</label>
-                <textarea name="code" id="code" rows="15" placeholder="Paste your code here..."></textarea>
-            </div>
+        <button type="submit"><i class="fas fa-magnifying-glass"></i> Scan Code</button>
+    </form>
+</div>
 
-            <button type="submit"><i class="fas fa-magnifying-glass"></i> Scan Code</button>
-        </form>
-    </div>
+<div class="result-card">
+    <h2><i class="fas fa-clipboard-list"></i> Analysis Result</h2>
+    <pre id="result" class="line-numbers"><code class="language-json"></code></pre>
+</div>
 
-    <div class="result-card">
-        <h2><i class="fas fa-clipboard-list"></i> Analysis Result</h2>
-        <pre id="result" class="line-numbers"><code class="language-json"></code></pre>
-    </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
-    <script>
-    document.getElementById("scanForm").onsubmit = async (e) => {
-        e.preventDefault();
-        const form = new FormData(e.target);
-        const res = await fetch("/scan", { method: "POST", body: form });
-        const data = await res.json();
-        const codeBlock = document.querySelector("#result code");
-        codeBlock.textContent = JSON.stringify(data, null, 2);
-        Prism.highlightElement(codeBlock);
-    }
-    </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+<script>
+document.getElementById("scanForm").onsubmit = async (e) => {
+    e.preventDefault();
+    const form = new FormData(e.target);
+    const res = await fetch("/scan", { method: "POST", body: form });
+    const data = await res.json();
+    const codeBlock = document.querySelector("#result code");
+    codeBlock.textContent = JSON.stringify(data, null, 2);
+    Prism.highlightElement(codeBlock);
+}
+</script>
 </body>
 </html>
