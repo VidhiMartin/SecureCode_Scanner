@@ -2,7 +2,7 @@
 body {
     margin: 0;
     font-family: 'Segoe UI', sans-serif;
-    background-color: #0c0f14; /* enterprise-grade dark background */
+    background-color: #0c0f14; 
     color: #c9d1d9;
 }
 
@@ -26,8 +26,32 @@ body {
     font-size: 1.15em;
     color: #8b949e;
     max-width: 700px;
-    margin: 0 auto;
+    margin: 0 auto 25px auto;
     line-height: 1.6em;
+}
+
+/* Feature list */
+.feature-list {
+    list-style: none;
+    padding-left: 0;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.feature-list li {
+    display: flex;
+    align-items: flex-start;
+    font-size: 1.05em;
+    margin-bottom: 12px;
+    color: #c9d1d9;
+}
+
+.feature-list li i {
+    color: #3fa9f5;
+    font-size: 1.2em;
+    margin-right: 12px;
+    flex-shrink: 0;
+    margin-top: 2px;
 }
 
 /* Crystal Blue 3D Shield */
