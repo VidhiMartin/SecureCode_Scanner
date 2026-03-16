@@ -69,7 +69,7 @@ body {
 
 /* Crystal Blue 3D Shield - slightly bigger */
 .shield-icon {
-    font-size: 6em; /* increased from 5em */
+    font-size: 7em; /* increased from 5em */
     background: linear-gradient(145deg, #3fa9f5, #0f52ba);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
