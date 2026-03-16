@@ -1,1 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LLM-Powered Source Code Scanner</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
 
+<body>
+
+<div class="container">
+
+<h1>LLM-Powered Source Code Scanner</h1>
+
+<p>
+Scan multi-language codebases for vulnerabilities using AI.
+</p>
+
+<form id="scanForm">
+
+<label>Language</label>
+<select name="language">
+<option>python</option>
+<option>javascript</option>
+<option>java</option>
+<option>c</option>
+<option>cpp</option>
+<option>csharp</option>
+<option>go</option>
+<option>rust</option>
+<option>php</option>
+<option>ruby</option>
+<option>typescript</option>
+</select>
+
+<label>Paste Source Code</label>
+
+<textarea name="code" rows="18"></textarea>
+
+<button type="submit">Scan Code</button>
+
+</form>
+
+<pre id="result"></pre>
+
+</div>
+
+<script>
+
+document.getElementById("scanForm").onsubmit = async (e) => {
+    e.preventDefault()
+
+    const form = new FormData(e.target)
+
+    const res = await fetch("/scan", {
+        method: "POST",
+        body: form
+    })
+
+    const data = await res.json()
+
+    document.getElementById("result").textContent =
+        JSON.stringify(data, null, 2)
+}
+
+</script>
+
+</body>
+</html>
