@@ -3,7 +3,7 @@ import requests
 import ast
 import subprocess
 import tempfile
-import os as _os  # avoid conflict
+import os as _os
 
 LLM_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
@@ -12,13 +12,13 @@ LLM_ENDPOINT = "https://openrouter.ai/api/v1/chat/completions"
 MODEL = "nvidia/nemotron-3-super-120b-a12b:free"
 
 
-# --------- ADDED: validator ---------
+# --------- VALIDATOR ---------
 def run_cmd(cmd):
     try:
         result = subprocess.run(cmd, capture_output=True)
         return result.returncode == 0
     except Exception:
-        return None  # tool missing
+        return None
 
 
 def validate_code(code, language):
@@ -55,7 +55,7 @@ def validate_code(code, language):
             return ok
 
         elif language == "csharp":
-            return None  # skip (requires project context)
+            return None  # skipped (needs project context)
 
         elif language == "go":
             with tempfile.NamedTemporaryFile(delete=False, suffix=".go") as f:
@@ -94,12 +94,12 @@ def validate_code(code, language):
 
     except Exception:
         return False
-# --------- END ADDED ---------
+# --------- END VALIDATOR ---------
 
 
 def analyze_code(code, language):
 
-    # --------- ADDED: input + syntax checks ---------
+    # --------- INPUT + SYNTAX CHECK ---------
     if not code or len(code.strip()) < 3:
         return {"result": "Invalid input"}
 
@@ -107,7 +107,7 @@ def analyze_code(code, language):
 
     if is_valid is False:
         return {"result": "Invalid syntax"}
-    # --------- END ADDED ---------
+    # --------- END CHECK ---------
 
 
     prompt = f"""
@@ -115,21 +115,23 @@ You are an application security expert.
 
 Analyze the following {language} code.
 
-Tasks:
-1. Identify vulnerabilities - concisely
-2. Reference CVE if known
-3. Reference CWE categories if known
-4. Explain risk - in 1 concise line
-5. Provide secure patched code - concisely
-6. Provide mitigation advice - concise
+Output rules:
 
-Return JSON with:
-- vulnerabilities
-- cwe
-- possible_cve
-- risk
-- patch
-- explanation (in one line)
+- If NO vulnerabilities are found, return exactly:
+No vulnerabilities found
+
+- If vulnerabilities ARE found, return them in this format:
+
+- Vulnerability: <name>
+  Severity: <score>/10
+  CVE/CWE: <id or N/A>
+  Risk: <one line impact>
+  Fix: <one line mitigation>
+
+- Use bullet points for multiple vulnerabilities
+- Do NOT return JSON
+- Do NOT include extra explanations
+- Keep everything concise
 
 Code:
 {code}
@@ -159,9 +161,8 @@ Code:
             "details": r.text
         }
 
-    # --------- CHANGED: clean response ---------
+    # --------- CLEAN RESPONSE ---------
     data = r.json()
     content = data["choices"][0]["message"]["content"]
 
     return {"analysis": content}
-    # --------- END CHANGE ---------
