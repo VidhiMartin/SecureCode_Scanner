@@ -56,7 +56,7 @@ body {
 
 .feature-list {
     margin-right: 25px;
-    margin-left: -10px;/* shifts bullets slightly right */
+    margin-left: 20px;/* shifts bullets slightly right */
 }
 
 /* Bullet row */
