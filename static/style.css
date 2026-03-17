@@ -1,4 +1,9 @@
-/* General dark theme */
+/* Global Reset */
+* {
+    box-sizing: border-box;
+}
+
+/* Body */
 body {
     margin: 0;
     font-family: 'Segoe UI', sans-serif;
@@ -6,72 +11,37 @@ body {
     color: #c9d1d9;
 }
 
+/* Shared container for proper centering */
+.container {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px; /* ensures equal spacing on both sides */
+}
+
 /* Hero Section */
 .hero {
     text-align: center;
-    padding: 80px 20px 40px;
+    padding: 80px 0 40px;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
+/* Headline */
 .headline {
     font-size: 2.8em;
     margin: 20px 0 10px;
     font-weight: 700;
 }
 
+/* Subtext */
 .subhead {
     font-size: 1.15em;
     color: #8b949e;
     max-width: 700px;
-    margin-bottom: 25px;
     line-height: 1.6em;
-}
-
-/* FEATURE LIST (FIXED) */
-.feature-list {
-    list-style: none;
-    padding: 0;
-    margin: 0 auto 40px;
-    max-width: 700px;
-}
-
-/* Each bullet */
-.feature-list li {
-    display: flex;
-    align-items: center;   /* TRUE vertical centering */
-    gap: 12px;             /* consistent spacing between icon and text */
-    font-size: 1.05em;
-    margin-bottom: 18px;
-    line-height: 1.6;
-}
-
-/* ICON FIX (critical for alignment + color) */
-.feature-list li i {
-    width: 24px;                 /* fixed width ensures alignment */
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2em;
-}
-
-/* FORCE COLORS (override all conflicts) */
-.feature-list li i.bullet-vuln {
-    color: #f59e0b !important;
-}
-
-.feature-list li i.bullet-cve {
-    color: #22c55e !important;
-}
-
-.feature-list li i.bullet-patch {
-    color: #3b82f6 !important;
-}
-
-.feature-list li strong {
-    margin-right: 2px; /* very subtle spacing */
+    margin-bottom: 30px;
 }
 
 /* Shield */
@@ -82,44 +52,82 @@ body {
     -webkit-text-fill-color: transparent;
     text-shadow: 0 0 25px rgba(63,169,245,0.6);
     margin-bottom: 15px;
-    animation: float 2.5s ease-in-out infinite;
 }
 
-@keyframes float {
-    0%,100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
+/* Feature list */
+.feature-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 auto 40px;
+    max-width: 700px;
+    width: 100%;
 }
 
-/* Cards */
+/* Bullet row */
+.feature-list li {
+    display: flex;
+    align-items: center;   /* vertical center FIXED */
+    justify-content: flex-start;
+    gap: 12px;
+    font-size: 1.05em;
+    margin-bottom: 18px;
+    text-align: left;
+}
+
+/* Icon alignment */
+.feature-list li i {
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Bullet colors */
+.bullet-vuln { color: #f59e0b; }
+.bullet-cve  { color: #22c55e; }
+.bullet-patch{ color: #3b82f6; }
+
+/* Proper colon spacing */
+.feature-list li strong {
+    margin-right: 3px;
+}
+
+/* Scanner Card (FIXED CENTERING) */
 .scanner-card {
+    width: 100%;
     max-width: 900px;
-    width: calc(100% - 40px);
-    background: #161b22;
+    margin: -40px auto 20px auto; /* perfectly centered */
     padding: 30px;
+    background: #161b22;
     border-radius: 16px;
     box-shadow: 0 15px 40px rgba(0,0,0,0.6);
 }
 
+/* Result Card */
 .result-card {
+    width: 100%;
     max-width: 900px;
-    margin: 20px auto 60px;
-    background: #161b22;
+    margin: 20px auto 60px auto;
     padding: 30px;
+    background: #161b22;
     border-radius: 16px;
     box-shadow: 0 15px 40px rgba(0,0,0,0.6);
 }
 
-/* Form */
+/* Form layout */
 .form-row {
     margin-bottom: 20px;
 }
 
+/* Labels */
 label {
     display: block;
     margin-bottom: 8px;
     font-weight: 600;
 }
 
+/* Inputs */
 select, textarea {
     width: 100%;
     padding: 16px;
@@ -128,10 +136,9 @@ select, textarea {
     background: #0d1117;
     color: #c9d1d9;
     font-family: monospace;
-    box-sizing: border-box; /* IMPORTANT */
-
 }
 
+/* Focus */
 select:focus, textarea:focus {
     outline: none;
     border-color: #3fa9f5;
@@ -153,7 +160,7 @@ button:hover {
     background: #0f52ba;
 }
 
-/* Result box */
+/* Result */
 pre {
     background: #0d1117;
     padding: 20px;
@@ -161,8 +168,23 @@ pre {
     overflow: auto;
 }
 
-/* Responsive */
+/* Mobile Optimization */
 @media (max-width: 768px) {
-    .headline { font-size: 2em; }
-    .shield-icon { font-size: 5em; }
+    .headline {
+        font-size: 2em;
+    }
+
+    .shield-icon {
+        font-size: 5em;
+    }
+
+    .scanner-card,
+    .result-card {
+        padding: 20px;
+        margin: 15px auto;
+    }
+
+    .feature-list li {
+        font-size: 1em;
+    }
 }
