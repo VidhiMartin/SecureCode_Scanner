@@ -63,7 +63,7 @@ body {
     font-size: 1.05em;
     text-align: left;
 
-    padding-left: 30px; /* ✅ THIS is the correct shift */
+    padding-left: 50px; /* ✅ THIS is the correct shift */
 }
 
 /* Icon */
