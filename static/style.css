@@ -9,7 +9,7 @@ body {
 /* Hero Section */
 .hero {
     text-align: center;
-    padding: 80px 20px 40px 20px;
+    padding: 80px 20px 40px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -17,110 +17,108 @@ body {
 
 .headline {
     font-size: 2.8em;
-    margin: 20px 0 10px 0;
+    margin: 20px 0 10px;
     font-weight: 700;
-    color: #c9d1d9;
 }
 
 .subhead {
     font-size: 1.15em;
     color: #8b949e;
     max-width: 700px;
-    margin: 0 auto 25px auto;
+    margin-bottom: 25px;
     line-height: 1.6em;
 }
 
-/* Feature list */
+/* FEATURE LIST (FIXED) */
 .feature-list {
     list-style: none;
-    padding-left: 0;
+    padding: 0;
+    margin: 0 auto 40px;
     max-width: 700px;
-    margin: 0 auto 40px auto;
 }
 
+/* Each bullet */
 .feature-list li {
     display: flex;
-    align-items: center; /* vertically center icon and text */
+    align-items: center;   /* TRUE vertical centering */
+    gap: 12px;             /* consistent spacing between icon and text */
     font-size: 1.05em;
-    margin-bottom: 18px; /* spacing between bullets */
-    color: #c9d1d9;
-    line-height: 1.5em; /* centers text with icon */
+    margin-bottom: 18px;
+    line-height: 1.6;
 }
 
-/* Bullet icons */
+/* ICON FIX (critical for alignment + color) */
 .feature-list li i {
-    display: inline-flex;       
-    align-items: center;        
-    justify-content: center;    
-    font-size: 1.3em;
-    margin-right: 12px;
-    flex-shrink: 0;
+    width: 24px;                 /* fixed width ensures alignment */
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2em;
 }
 
-/* Bullet colors */
-.bullet-vuln { color: #f59e0b !important; }   /* amber */
-.bullet-cve  { color: #22c55e !important; }   /* green */
-.bullet-patch{ color: #3b82f6 !important; }   /* blue */
-
-/* Add spacing after colon in bullet text */
-.feature-list li strong::after {
-    content: " ";
+/* FORCE COLORS (override all conflicts) */
+.feature-list li i.bullet-vuln {
+    color: #f59e0b !important;
 }
 
-/* Crystal Blue 3D Shield - slightly bigger */
+.feature-list li i.bullet-cve {
+    color: #22c55e !important;
+}
+
+.feature-list li i.bullet-patch {
+    color: #3b82f6 !important;
+}
+
+/* SPACE AFTER COLON (FIXED PROPERLY) */
+.feature-list li strong {
+    margin-right: 4px; /* ensures visible space after colon */
+}
+
+/* Shield */
 .shield-icon {
-    font-size: 7em; /* increased from 5em */
+    font-size: 6em;
     background: linear-gradient(145deg, #3fa9f5, #0f52ba);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    text-shadow: 2px 2px 20px rgba(63, 169, 245, 0.6);
-    transform: rotateY(10deg);
+    text-shadow: 0 0 25px rgba(63,169,245,0.6);
     margin-bottom: 15px;
-    animation: float 2.5s infinite ease-in-out;
+    animation: float 2.5s ease-in-out infinite;
 }
 
 @keyframes float {
-    0%, 100% { transform: translateY(0) rotateY(10deg);}
-    50% { transform: translateY(-12px) rotateY(10deg);}
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
 }
 
-/* Card Layout for Form */
+/* Cards */
 .scanner-card {
     max-width: 900px;
-    margin: -40px auto 20px auto; /* moves card slightly above for balance */
+    margin: -40px auto 20px;
     background: #161b22;
-    padding: 30px 35px;
+    padding: 30px;
     border-radius: 16px;
     box-shadow: 0 15px 40px rgba(0,0,0,0.6);
-    overflow: hidden;
 }
 
-/* Result Card */
 .result-card {
     max-width: 900px;
-    margin: 20px auto 60px auto;
+    margin: 20px auto 60px;
     background: #161b22;
-    padding: 30px 35px;
+    padding: 30px;
     border-radius: 16px;
     box-shadow: 0 15px 40px rgba(0,0,0,0.6);
-    overflow: hidden;
 }
 
-/* Form Rows */
+/* Form */
 .form-row {
     margin-bottom: 20px;
 }
 
 label {
     display: block;
-    font-weight: 600;
     margin-bottom: 8px;
-    color: #c9d1d9;
-}
-
-label i {
-    margin-right: 6px;
-    color: #3fa9f5;
+    font-weight: 600;
 }
 
 select, textarea {
@@ -131,56 +129,39 @@ select, textarea {
     background: #0d1117;
     color: #c9d1d9;
     font-family: monospace;
-    font-size: 1em;
-    box-sizing: border-box;
 }
 
 select:focus, textarea:focus {
     outline: none;
-    box-shadow: 0 0 10px #3fa9f5;
     border-color: #3fa9f5;
+    box-shadow: 0 0 8px #3fa9f5;
 }
 
 /* Button */
 button {
     background: #3fa9f5;
     color: #0d1117;
-    font-weight: bold;
-    border: none;
     padding: 14px 30px;
-    font-size: 1em;
+    border: none;
     border-radius: 10px;
+    font-weight: bold;
     cursor: pointer;
-    transition: all 0.3s ease;
 }
 
 button:hover {
     background: #0f52ba;
-    transform: translateY(-2px);
 }
 
-/* Result Card Heading */
-.result-card h2 {
-    margin-top: 0;
-    color: #3fa9f5;
-    font-size: 1.5em;
-    margin-bottom: 15px;
-}
-
+/* Result box */
 pre {
     background: #0d1117;
     padding: 20px;
     border-radius: 12px;
-    max-height: 450px;
     overflow: auto;
-    color: #c9d1d9;
-    font-family: monospace;
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px){
+/* Responsive */
+@media (max-width: 768px) {
     .headline { font-size: 2em; }
-    .shield-icon { font-size: 5em; } /* slightly smaller on mobile */
-    .scanner-card, .result-card { padding: 20px; margin: 15px; }
-    .feature-list li { font-size: 1em; }
+    .shield-icon { font-size: 5em; }
 }
