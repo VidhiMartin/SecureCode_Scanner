@@ -54,6 +54,10 @@ body {
     max-width: 650px;
 }
 
+.feature-list {
+    margin-left: 20px; /* shifts bullets slightly right */
+}
+
 /* Bullet row */
 .feature-list li {
     display: flex;
