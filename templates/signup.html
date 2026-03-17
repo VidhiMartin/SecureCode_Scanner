@@ -1,0 +1,36 @@
+<form method="POST" onsubmit="return validatePassword()">
+  <h2>Sign Up</h2>
+
+  <input type="email" id="email" name="email" placeholder="Email" required oninput="validateEmail()" />
+  <span id="email-msg"></span>
+
+  <input type="password" id="password" name="password" placeholder="Password" required />
+  <span id="pass-msg"></span>
+
+  <button type="submit">Create Account</button>
+
+  <p>Already have an account? <a href="/login">Login</a></p>
+</form>
+
+<script>
+function validateEmail() {
+  const email = document.getElementById("email").value;
+  const msg = document.getElementById("email-msg");
+
+  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  msg.innerText = regex.test(email) ? "Valid email" : "Invalid email";
+}
+
+function validatePassword() {
+  const pass = document.getElementById("password").value;
+  const msg = document.getElementById("pass-msg");
+
+  const strong = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+
+  if (!strong.test(pass)) {
+    msg.innerText = "Weak password";
+    return false;
+  }
+  return true;
+}
+</script>
