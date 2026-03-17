@@ -56,7 +56,7 @@ body {
 
 .feature-list {
     margin: 0 auto 40px auto; /* centers horizontally */
-    transform: translateX(10px);
+    transform: translateX(30px);
 }
 
 /* Bullet row */
