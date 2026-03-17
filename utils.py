@@ -5,7 +5,7 @@ LLM_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
 LLM_ENDPOINT = "https://openrouter.ai/api/v1/chat/completions"
 
-MODEL = "mistralai/mistral-7b-instruct:free"
+MODEL = "openchat/openchat-3.5-0106:free"
 
 
 def analyze_code(code, language):
