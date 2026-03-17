@@ -1,4 +1,4 @@
-/* Global Reset */
+/* Reset */
 * {
     box-sizing: border-box;
 }
@@ -7,41 +7,22 @@
 body {
     margin: 0;
     font-family: 'Segoe UI', sans-serif;
-    background-color: #0c0f14;
+    background: #0c0f14;
     color: #c9d1d9;
 }
 
-/* Shared container for proper centering */
+/* Container (CRITICAL FOR CENTERING) */
 .container {
     width: 100%;
     max-width: 900px;
     margin: 0 auto;
-    padding: 0 20px; /* ensures equal spacing on both sides */
+    padding: 0 20px;
 }
 
-/* Hero Section */
+/* Hero */
 .hero {
     text-align: center;
     padding: 80px 0 40px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-/* Headline */
-.headline {
-    font-size: 2.8em;
-    margin: 20px 0 10px;
-    font-weight: 700;
-}
-
-/* Subtext */
-.subhead {
-    font-size: 1.15em;
-    color: #8b949e;
-    max-width: 700px;
-    line-height: 1.6em;
-    margin-bottom: 30px;
 }
 
 /* Shield */
@@ -50,84 +31,78 @@ body {
     background: linear-gradient(145deg, #3fa9f5, #0f52ba);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    text-shadow: 0 0 25px rgba(63,169,245,0.6);
-    margin-bottom: 15px;
 }
 
-/* Feature list */
+/* Headline */
+.headline {
+    font-size: 2.6em;
+    margin: 20px 0 10px;
+}
+
+/* Subhead */
+.subhead {
+    color: #8b949e;
+    line-height: 1.6;
+    margin-bottom: 30px;
+}
+
+/* FEATURE LIST */
 .feature-list {
     list-style: none;
     padding: 0;
     margin: 0 auto 40px;
-    max-width: 700px;
-    width: 100%;
+    max-width: 650px;
 }
 
 /* Bullet row */
 .feature-list li {
     display: flex;
-    align-items: center;   /* vertical center FIXED */
-    justify-content: flex-start;
+    align-items: center;
     gap: 12px;
-    font-size: 1.05em;
     margin-bottom: 18px;
+    font-size: 1.05em;
     text-align: left;
 }
 
-/* Icon alignment */
+/* Icon */
 .feature-list li i {
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-/* Bullet colors */
+/* Colors */
 .bullet-vuln { color: #f59e0b; }
 .bullet-cve  { color: #22c55e; }
 .bullet-patch{ color: #3b82f6; }
 
-/* Proper colon spacing */
-.feature-list li strong {
+/* Fix colon spacing */
+.feature-list strong {
     margin-right: 3px;
 }
 
-/* Scanner Card (FIXED CENTERING) */
-.scanner-card {
-    width: 100%;
-    max-width: 900px;
-    margin: -40px auto 20px auto; /* perfectly centered */
-    padding: 30px;
+/* Cards */
+.scanner-card, .result-card {
     background: #161b22;
+    padding: 30px;
     border-radius: 16px;
     box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+    margin-bottom: 30px;
 }
 
-/* Result Card */
-.result-card {
-    width: 100%;
-    max-width: 900px;
-    margin: 20px auto 60px auto;
-    padding: 30px;
-    background: #161b22;
-    border-radius: 16px;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.6);
-}
-
-/* Form layout */
+/* Form */
 .form-row {
     margin-bottom: 20px;
 }
 
-/* Labels */
 label {
     display: block;
     margin-bottom: 8px;
     font-weight: 600;
 }
 
-/* Inputs */
 select, textarea {
     width: 100%;
     padding: 16px;
@@ -135,29 +110,17 @@ select, textarea {
     border: 1px solid #30363d;
     background: #0d1117;
     color: #c9d1d9;
-    font-family: monospace;
-}
-
-/* Focus */
-select:focus, textarea:focus {
-    outline: none;
-    border-color: #3fa9f5;
-    box-shadow: 0 0 8px #3fa9f5;
 }
 
 /* Button */
 button {
     background: #3fa9f5;
     color: #0d1117;
-    padding: 14px 30px;
+    padding: 14px;
     border: none;
     border-radius: 10px;
     font-weight: bold;
-    cursor: pointer;
-}
-
-button:hover {
-    background: #0f52ba;
+    width: 100%;
 }
 
 /* Result */
@@ -168,7 +131,7 @@ pre {
     overflow: auto;
 }
 
-/* Mobile Optimization */
+/* Mobile */
 @media (max-width: 768px) {
     .headline {
         font-size: 2em;
@@ -176,15 +139,5 @@ pre {
 
     .shield-icon {
         font-size: 5em;
-    }
-
-    .scanner-card,
-    .result-card {
-        padding: 20px;
-        margin: 15px auto;
-    }
-
-    .feature-list li {
-        font-size: 1em;
     }
 }
