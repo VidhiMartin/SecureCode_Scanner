@@ -1,10 +1,46 @@
-<form method="POST">
-  <h2>Login</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="auth-body">
 
-  <input type="email" name="email" placeholder="Email" required />
-  <input type="password" name="password" placeholder="Password" required />
+<div class="auth-container">
+  <div class="auth-card">
 
-  <button type="submit">Login</button>
+    <h1 class="logo">SecureScan</h1>
+    <p class="subtitle">Sign in to your account</p>
 
-  <p>Don't have an account? <a href="/signup">Sign up</a></p>
-</form>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="alert">
+          {% for msg in messages %}
+            <p>{{ msg }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST">
+      <div class="input-group">
+        <input type="email" name="email" required placeholder="Email">
+      </div>
+
+      <div class="input-group">
+        <input type="password" name="password" required placeholder="Password">
+      </div>
+
+      <button class="btn-primary" type="submit">Sign In</button>
+    </form>
+
+    <p class="switch">
+      Don’t have an account? <a href="/signup">Create one</a>
+    </p>
+
+  </div>
+</div>
+
+</body>
+</html>
