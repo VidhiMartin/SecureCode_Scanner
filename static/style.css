@@ -11,7 +11,7 @@ body {
     color: #c9d1d9;
 }
 
-/* Container (CRITICAL FOR CENTERING) */
+/* Container */
 .container {
     width: 100%;
     max-width: 900px;
@@ -46,7 +46,7 @@ body {
     margin-bottom: 30px;
 }
 
-/* FEATURE LIST */
+/* FEATURE LIST (FIXED) */
 .feature-list {
     list-style: none;
     padding: 0;
@@ -54,12 +54,7 @@ body {
     max-width: 650px;
 }
 
-.feature-list {
-    margin: 0 auto 40px auto; /* centers horizontally */
-    transform: translateX(30px);
-}
-
-/* Bullet row */
+/* Move bullets slightly RIGHT (correct way) */
 .feature-list li {
     display: flex;
     align-items: center;
@@ -67,6 +62,8 @@ body {
     margin-bottom: 18px;
     font-size: 1.05em;
     text-align: left;
+
+    padding-left: 15px; /* ✅ THIS is the correct shift */
 }
 
 /* Icon */
@@ -83,24 +80,24 @@ body {
 .bullet-cve  { color: #22c55e; }
 .bullet-patch{ color: #3b82f6; }
 
-/* Fix colon spacing */
+/* Colon spacing */
 .feature-list strong {
     margin-right: 3px;
 }
 
 /* Cards */
-.scanner-card, .result-card {
+.scanner-card,
+.result-card {
     background: #161b22;
     padding: 30px;
     border-radius: 16px;
     box-shadow: 0 15px 40px rgba(0,0,0,0.6);
     margin-bottom: 30px;
-
-  
 }
 
-  .scanner-card {
-    margin-top: -30px; /* move upwards */
+/* Move scanner card up */
+.scanner-card {
+    margin-top: -30px;
 }
 
 /* Form */
@@ -114,7 +111,8 @@ label {
     font-weight: 600;
 }
 
-select, textarea {
+select,
+textarea {
     width: 100%;
     padding: 16px;
     border-radius: 12px;
@@ -150,5 +148,9 @@ pre {
 
     .shield-icon {
         font-size: 5em;
+    }
+
+    .feature-list li {
+        padding-left: 10px; /* slightly reduced for mobile */
     }
 }
