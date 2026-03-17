@@ -55,7 +55,7 @@ def validate_code(code, language):
             return ok
 
         elif language == "csharp":
-            return None  # skipped (needs project context)
+            return None  # requires project context
 
         elif language == "go":
             with tempfile.NamedTemporaryFile(delete=False, suffix=".go") as f:
@@ -161,8 +161,39 @@ Code:
             "details": r.text
         }
 
-    # --------- CLEAN RESPONSE ---------
+    # --------- CLEAN + STRUCTURE RESPONSE ---------
     data = r.json()
-    content = data["choices"][0]["message"]["content"]
+    content = data["choices"][0]["message"]["content"].strip()
 
-    return {"analysis": content}
+    if "no vulnerabilities found" in content.lower():
+        return {"analysis": "No vulnerabilities found"}
+
+    lines = content.split("\n")
+    formatted = []
+    current = {}
+
+    for line in lines:
+        line = line.strip()
+
+        if line.startswith("- Vulnerability:"):
+            if current:
+                formatted.append(current)
+                current = {}
+            current["name"] = line.replace("- Vulnerability:", "").strip()
+
+        elif line.startswith("Severity:"):
+            current["severity"] = line.replace("Severity:", "").strip()
+
+        elif line.startswith("CVE/CWE:"):
+            current["cwe"] = line.replace("CVE/CWE:", "").strip()
+
+        elif line.startswith("Risk:"):
+            current["risk"] = line.replace("Risk:", "").strip()
+
+        elif line.startswith("Fix:"):
+            current["fix"] = line.replace("Fix:", "").strip()
+
+    if current:
+        formatted.append(current)
+
+    return {"analysis": formatted}
