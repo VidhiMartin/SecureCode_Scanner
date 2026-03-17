@@ -7,10 +7,24 @@
 </head>
 <body class="auth-body">
 
+<!-- Background Shield -->
+<div class="bg-shield">
+  <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+    <path d="M256 32L96 96v144c0 112 80 192 160 224 80-32 160-112 160-224V96L256 32z"
+          fill="url(#grad)" opacity="0.15"/>
+    <defs>
+      <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#3b82f6"/>
+        <stop offset="100%" stop-color="#60a5fa"/>
+      </linearGradient>
+    </defs>
+  </svg>
+</div>
+
 <div class="auth-container">
   <div class="auth-card">
 
-    <h1 class="logo">Secure Code Scanner</h1>
+    <h1 class="logo">SecureScan</h1>
     <p class="subtitle">Sign in to your account</p>
 
     {% with messages = get_flashed_messages() %}
@@ -35,8 +49,9 @@
       <button class="btn-primary" type="submit">Sign In</button>
     </form>
 
-    <p class="switch">
-      Don’t have an account? <a href="/signup">Create one</a>
+    <p class="switch strong-text">
+      Don’t have an account? 
+      <a href="/signup">Create one</a>
     </p>
 
   </div>
