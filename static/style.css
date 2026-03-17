@@ -70,9 +70,8 @@ body {
     color: #3b82f6 !important;
 }
 
-/* SPACE AFTER COLON (FIXED PROPERLY) */
 .feature-list li strong {
-    margin-right: 4px; /* ensures visible space after colon */
+    margin-right: 2px; /* very subtle spacing */
 }
 
 /* Shield */
@@ -94,7 +93,7 @@ body {
 /* Cards */
 .scanner-card {
     max-width: 900px;
-    margin: -40px auto 20px;
+    width: calc(100% - 40px);
     background: #161b22;
     padding: 30px;
     border-radius: 16px;
@@ -129,6 +128,8 @@ select, textarea {
     background: #0d1117;
     color: #c9d1d9;
     font-family: monospace;
+    box-sizing: border-box; /* IMPORTANT */
+
 }
 
 select:focus, textarea:focus {
