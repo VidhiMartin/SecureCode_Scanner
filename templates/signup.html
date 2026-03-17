@@ -1,22 +1,54 @@
-<form method="POST" onsubmit="return validatePassword()">
-  <h2>Sign Up</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sign Up</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="auth-body">
 
-  <input type="email" id="email" name="email" placeholder="Email" required oninput="validateEmail()" />
-  <span id="email-msg"></span>
+<div class="auth-container">
+  <div class="auth-card">
 
-  <input type="password" id="password" name="password" placeholder="Password" required />
-  <span id="pass-msg"></span>
+    <h1 class="logo">SecureScan</h1>
+    <p class="subtitle">Create your account</p>
 
-  <button type="submit">Create Account</button>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="alert">
+          {% for msg in messages %}
+            <p>{{ msg }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
 
-  <p>Already have an account? <a href="/login">Login</a></p>
-</form>
+    <form method="POST" onsubmit="return validatePassword()">
+
+      <div class="input-group">
+        <input type="email" id="email" name="email" required placeholder="Email" oninput="validateEmail()">
+        <small id="email-msg"></small>
+      </div>
+
+      <div class="input-group">
+        <input type="password" id="password" name="password" required placeholder="Password">
+        <small id="pass-msg"></small>
+      </div>
+
+      <button class="btn-primary" type="submit">Create Account</button>
+    </form>
+
+    <p class="switch">
+      Already have an account? <a href="/login">Sign in</a>
+    </p>
+
+  </div>
+</div>
 
 <script>
 function validateEmail() {
   const email = document.getElementById("email").value;
   const msg = document.getElementById("email-msg");
-
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   msg.innerText = regex.test(email) ? "Valid email" : "Invalid email";
 }
@@ -28,9 +60,12 @@ function validatePassword() {
   const strong = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
 
   if (!strong.test(pass)) {
-    msg.innerText = "Weak password";
+    msg.innerText = "Weak password (8+ chars, upper, lower, number, symbol)";
     return false;
   }
   return true;
 }
 </script>
+
+</body>
+</html>
