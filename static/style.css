@@ -39,6 +39,15 @@ body {
     margin: 20px 0 10px;
 }
 
+.model-line {
+    display: block;
+    margin-bottom: 6px;
+}
+
+.desc-line {
+    display: block;
+}
+
 /* Subhead */
 .subhead {
     color: #8b949e;
