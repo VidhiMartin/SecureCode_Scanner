@@ -162,7 +162,7 @@ body.auth-body {
 
 /* Big glowing shield */
 .shield-icon {
-  font-size: 90px;
+  font-size: 120px;
   color: #3b82f6;
   margin-bottom: 20px;
   filter: drop-shadow(0 0 25px rgba(59,130,246,0.6));
@@ -176,7 +176,7 @@ body.auth-body {
 
 /* Headline */
 .headline {
-  font-size: 44px;
+  font-size: 50px;
   font-weight: 700;
   margin-bottom: 12px;
   letter-spacing: -0.5px;
@@ -185,7 +185,7 @@ body.auth-body {
 /* Subhead */
 .subhead {
   color: #94a3b8;
-  font-size: 30px;
+  font-size: 20px;
   max-width: 750px;
   margin: auto;
   line-height: 1.7;
@@ -204,7 +204,7 @@ body.auth-body {
   justify-content: center;
   margin: 12px 0;
   color: #cbd5f5;
-  font-size: 25px;
+  font-size: 18px;
 }
 
 .feature-list i {
