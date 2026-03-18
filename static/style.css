@@ -166,11 +166,19 @@ body.auth-body {
 
 /* Shield */
 .shield-icon {
-  font-size: 160px;
+  font-size: 140px;
   color: #3b82f6;
   margin-bottom: 18px;
-  filter: drop-shadow(0 0 30px rgba(59,130,246,0.6));
-  animation: shieldPulse 2.5s infinite alternate;
+  filter: drop-shadow(0 0 20px rgba(59,130,246,0.5));
+
+  animation: shieldWiggle 4s ease-in-out infinite;
+}
+
+/* Simple up-down motion */
+@keyframes shieldWiggle {
+  0%   { transform: translateY(0); }
+  50%  { transform: translateY(-5px); }
+  100% { transform: translateY(0); }
 }
 
 @keyframes shieldPulse {
