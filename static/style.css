@@ -218,7 +218,7 @@ body.auth-body {
 
 /* Scanner Card (glass effect) */
 .scanner-card {
-  margin-top: 10px;
+  margin-top: 6px;
   background: rgba(30, 41, 59, 0.6);
   backdrop-filter: blur(12px);
   padding: 30px;
