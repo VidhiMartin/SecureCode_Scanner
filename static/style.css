@@ -8,23 +8,26 @@
 }
 
 /*-------------------------------
-   BODY
+   GLOBAL
 -------------------------------*/
-body.auth-body {
+body {
   font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
   background: #0f172a;
+  color: #f8fafc;
+}
+
+/*-------------------------------
+   AUTH PAGE (UNCHANGED)
+-------------------------------*/
+body.auth-body {
   height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #f8fafc;
   overflow-x: hidden;
   position: relative;
 }
 
-/*-------------------------------
-   SHIELD BACKGROUND
--------------------------------*/
 .bg-shield {
   position: fixed;
   top: 50%;
@@ -40,13 +43,11 @@ body.auth-body {
   animation: pulseGlow 3s infinite alternate;
 }
 
-/* Shield border pulse */
 @keyframes pulseGlow {
   0% { filter: drop-shadow(0 0 10px rgba(59,130,246,0.3)); }
   100% { filter: drop-shadow(0 0 25px rgba(59,130,246,0.6)); }
 }
 
-/* Cracks glow */
 .bg-shield path[stroke="#3b82f6"],
 .bg-shield path[stroke="#60a5fa"] {
   animation: crackGlow 2s infinite alternate;
@@ -57,9 +58,6 @@ body.auth-body {
   100% { opacity: 0.7; }
 }
 
-/*-------------------------------
-   CONTAINER & CARD
--------------------------------*/
 .auth-container {
   width: 100%;
   max-width: 400px;
@@ -73,16 +71,12 @@ body.auth-body {
   border-radius: 14px;
   box-shadow: 0 20px 50px rgba(0,0,0,0.5);
   text-align: center;
-  border: 1px solid rgba(59, 130, 246, 0.3); /* subtle border glow effect */
+  border: 1px solid rgba(59,130,246,0.3);
 }
 
-/*-------------------------------
-   LOGO & SUBTITLE
--------------------------------*/
 .logo {
   font-size: 28px;
   font-weight: 600;
-  color: #f8fafc;
   margin-bottom: 8px;
 }
 
@@ -92,9 +86,6 @@ body.auth-body {
   margin-bottom: 24px;
 }
 
-/*-------------------------------
-   INPUTS
--------------------------------*/
 .input-group {
   margin-bottom: 16px;
   text-align: left;
@@ -108,7 +99,6 @@ body.auth-body {
   background: #0f172a;
   color: #f8fafc;
   font-size: 14px;
-  transition: all 0.3s ease;
 }
 
 .input-group input:focus {
@@ -117,9 +107,6 @@ body.auth-body {
   box-shadow: 0 0 10px rgba(59,130,246,0.3);
 }
 
-/*-------------------------------
-   BUTTONS
--------------------------------*/
 .btn-primary {
   width: 100%;
   padding: 14px;
@@ -129,17 +116,12 @@ body.auth-body {
   border-radius: 10px;
   font-size: 15px;
   cursor: pointer;
-  transition: all 0.3s ease;
 }
 
 .btn-primary:hover {
-  transform: translateY(-1px);
   box-shadow: 0 8px 20px rgba(37,99,235,0.35);
 }
 
-/*-------------------------------
-   SWITCH / LINK
--------------------------------*/
 .switch {
   margin-top: 18px;
   font-size: 14px;
@@ -148,17 +130,9 @@ body.auth-body {
 
 .switch a {
   color: #3b82f6;
-  font-weight: 500;
   text-decoration: none;
 }
 
-.switch a:hover {
-  text-decoration: underline;
-}
-
-/*-------------------------------
-   ALERT
--------------------------------*/
 .alert {
   background: #f1f5f9;
   color: #b91c1c;
@@ -170,28 +144,150 @@ body.auth-body {
 }
 
 /*-------------------------------
-   MOBILE RESPONSIVENESS
+   SCANNER PAGE (NEW)
+-------------------------------*/
+
+/* Layout */
+.container {
+  max-width: 1000px;
+  margin: auto;
+  padding: 20px;
+}
+
+/* Hero */
+.hero {
+  text-align: center;
+  padding: 60px 20px 30px;
+  border-bottom: 1px solid #1e293b;
+}
+
+.shield-icon {
+  font-size: 40px;
+  color: #3b82f6;
+  margin-bottom: 10px;
+}
+
+.headline {
+  font-size: 34px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.subhead {
+  color: #94a3b8;
+  font-size: 14px;
+  max-width: 700px;
+  margin: auto;
+  line-height: 1.6;
+}
+
+/* Features */
+.feature-list {
+  list-style: none;
+  margin-top: 25px;
+}
+
+.feature-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+  margin: 10px 0;
+  color: #cbd5f5;
+}
+
+/* Scanner Card */
+.scanner-card {
+  margin-top: 30px;
+  background: #1e293b;
+  padding: 25px;
+  border-radius: 12px;
+  border: 1px solid #334155;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+
+/* Form */
+.form-row {
+  margin-bottom: 16px;
+}
+
+.form-row label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+textarea,
+select {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #334155;
+  background: #0f172a;
+  color: #f8fafc;
+  font-size: 14px;
+}
+
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 8px rgba(59,130,246,0.25);
+}
+
+/* Button */
+button {
+  margin-top: 10px;
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+button:hover {
+  box-shadow: 0 6px 15px rgba(37,99,235,0.35);
+}
+
+/* Result Card */
+.result-card {
+  margin-top: 25px;
+  background: #020617;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #334155;
+}
+
+.result-card h2 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+pre {
+  background: #020617;
+  padding: 15px;
+  border-radius: 8px;
+  overflow-x: auto;
+  font-size: 13px;
+}
+
+/*-------------------------------
+   RESPONSIVE
 -------------------------------*/
 @media (max-width: 768px) {
-  .bg-shield {
-    width: 450px;
-    height: 450px;
+  .headline {
+    font-size: 26px;
   }
 
-  .auth-container {
-    max-width: 90%;
-    padding: 0 10px;
+  .container {
+    padding: 15px;
   }
 
-  .auth-card {
-    padding: 30px;
-  }
-
-  .logo {
-    font-size: 24px;
-  }
-
-  .subtitle {
-    font-size: 13px;
+  .scanner-card {
+    padding: 18px;
   }
 }
