@@ -147,25 +147,29 @@ body.auth-body {
    SCANNER PAGE (ENTERPRISE)
 -------------------------------*/
 
-/* Layout */
+/*-------------------------------
+   LAYOUT
+-------------------------------*/
 .container {
   max-width: 1100px;
   margin: auto;
   padding: 20px;
 }
 
-/* Hero */
+/*-------------------------------
+   HERO
+-------------------------------*/
 .hero {
   text-align: center;
-  padding: 80px 20px 40px;
+  padding: 70px 20px 20px;
 }
 
-/* Big glowing shield */
+/* Shield */
 .shield-icon {
-  font-size: 150px;
+  font-size: 140px;
   color: #3b82f6;
-  margin-bottom: 20px;
-  filter: drop-shadow(0 0 25px rgba(59,130,246,0.6));
+  margin-bottom: 18px;
+  filter: drop-shadow(0 0 30px rgba(59,130,246,0.6));
   animation: shieldPulse 2.5s infinite alternate;
 }
 
@@ -176,23 +180,39 @@ body.auth-body {
 
 /* Headline */
 .headline {
-  margin-top: 10px
-  font-size: 80px;
+  margin-top: 10px;
+  font-size: 56px;   /* reduced from 80px → more professional */
   font-weight: 700;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
   letter-spacing: -0.5px;
 }
 
-/* Subhead */
+/* Subhead container */
 .subhead {
-  color: #94a3b8;
-  font-size: 20px;
   max-width: 750px;
-  margin: 12px auto 0;
+  margin: 18px auto 0;
+  text-align: center;
   line-height: 1.7;
 }
 
-/* Features */
+/* Line 1: NVIDIA */
+.model-line {
+  display: block;
+  font-size: 20px;
+  color: #cbd5f5;
+  margin-bottom: 10px;
+}
+
+/* Line 2: Description */
+.desc-line {
+  display: block;
+  font-size: 17px;
+  color: #94a3b8;
+}
+
+/*-------------------------------
+   FEATURES
+-------------------------------*/
 .feature-list {
   list-style: none;
   margin-top: 30px;
@@ -205,7 +225,7 @@ body.auth-body {
   justify-content: center;
   margin: 12px 0;
   color: #cbd5f5;
-  font-size: 18px;
+  font-size: 17px;
 }
 
 .feature-list i {
@@ -217,9 +237,11 @@ body.auth-body {
 .bullet-cve { color: #f59e0b; }
 .bullet-patch { color: #22c55e; }
 
-/* Scanner Card (glass effect) */
+/*-------------------------------
+   SCANNER CARD
+-------------------------------*/
 .scanner-card {
-  margin-top: -10px;
+  margin-top: -8px;
   background: rgba(30, 41, 59, 0.6);
   backdrop-filter: blur(12px);
   padding: 30px;
@@ -228,15 +250,17 @@ body.auth-body {
   box-shadow: 0 20px 60px rgba(0,0,0,0.6);
 }
 
-/* Form */
+/*-------------------------------
+   FORM
+-------------------------------*/
 .form-row {
   margin-bottom: 18px;
 }
 
 .form-row label {
   display: block;
-  margin-bottom: 12px;
-  font-size: 20px;
+  margin-bottom: 10px;
+  font-size: 16px;
   color: #94a3b8;
 }
 
@@ -248,7 +272,7 @@ select {
   border: 1px solid #334155;
   background: #020617;
   color: #f8fafc;
-  font-size: 14px;
+  font-size: 15px;
 }
 
 textarea:focus,
@@ -258,16 +282,18 @@ select:focus {
   box-shadow: 0 0 10px rgba(59,130,246,0.3);
 }
 
-/* Button */
+/*-------------------------------
+   BUTTON
+-------------------------------*/
 button {
-  margin-top: 10px;
+  margin-top: 12px;
   width: 100%;
   padding: 14px;
   background: linear-gradient(135deg, #3b82f6, #2563eb);
   border: none;
   border-radius: 10px;
   color: white;
-  font-size: 15px;
+  font-size: 16px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -277,7 +303,9 @@ button:hover {
   box-shadow: 0 10px 25px rgba(37,99,235,0.4);
 }
 
-/* Result Card */
+/*-------------------------------
+   RESULT
+-------------------------------*/
 .result-card {
   margin-top: 30px;
   background: rgba(2,6,23,0.85);
@@ -288,11 +316,10 @@ button:hover {
 }
 
 .result-card h2 {
-  font-size: 18px;
+  font-size: 20px;
   margin-bottom: 12px;
 }
 
-/* Code block */
 pre {
   background: #020617;
   padding: 16px;
@@ -307,11 +334,19 @@ pre {
 -------------------------------*/
 @media (max-width: 768px) {
   .headline {
-    font-size: 28px;
+    font-size: 32px;
   }
 
   .shield-icon {
-    font-size: 70px;
+    font-size: 80px;
+  }
+
+  .model-line {
+    font-size: 16px;
+  }
+
+  .desc-line {
+    font-size: 14px;
   }
 
   .container {
