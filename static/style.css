@@ -1,11 +1,15 @@
-/* Reset */
+/*-------------------------------
+   RESET
+-------------------------------*/
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
-/* Body */
+/*-------------------------------
+   BODY
+-------------------------------*/
 body.auth-body {
   font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
   background: #0f172a;
@@ -14,19 +18,22 @@ body.auth-body {
   align-items: center;
   justify-content: center;
   color: #f8fafc;
+  overflow-x: hidden;
 }
 
-/* Shield background */
+/*-------------------------------
+   SHIELD BACKGROUND
+-------------------------------*/
 .bg-shield {
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 500px;
-  height: 500px;
+  width: 800px;       /* Large on desktop */
+  height: 800px;
   z-index: 0;
   pointer-events: none;
-  opacity: 0.2;
+  opacity: 0.15;      /* subtle behind card */
 }
 
 .bg-shield svg {
@@ -34,15 +41,16 @@ body.auth-body {
   height: 100%;
 }
 
-/* Container */
+/*-------------------------------
+   CONTAINER & CARD
+-------------------------------*/
 .auth-container {
   width: 100%;
   max-width: 400px;
   position: relative;
-  z-index: 2;
+  z-index: 2;          /* card above shield */
 }
 
-/* Card */
 .auth-card {
   background: #1e293b;
   padding: 36px;
@@ -51,7 +59,9 @@ body.auth-body {
   text-align: center;
 }
 
-/* Logo & Subtitle */
+/*-------------------------------
+   LOGO & SUBTITLE
+-------------------------------*/
 .logo {
   font-size: 26px;
   font-weight: 600;
@@ -65,7 +75,9 @@ body.auth-body {
   margin-bottom: 20px;
 }
 
-/* Input fields */
+/*-------------------------------
+   INPUTS
+-------------------------------*/
 .input-group {
   margin-bottom: 14px;
   text-align: left;
@@ -79,6 +91,7 @@ body.auth-body {
   background: #0f172a;
   color: #f8fafc;
   font-size: 14px;
+  transition: all 0.2s ease;
 }
 
 .input-group input:focus {
@@ -87,7 +100,9 @@ body.auth-body {
   box-shadow: 0 0 0 2px rgba(59,130,246,0.2);
 }
 
-/* Buttons */
+/*-------------------------------
+   BUTTONS
+-------------------------------*/
 .btn-primary {
   width: 100%;
   padding: 12px;
@@ -105,7 +120,9 @@ body.auth-body {
   box-shadow: 0 5px 15px rgba(37,99,235,0.3);
 }
 
-/* Switch text */
+/*-------------------------------
+   SWITCH / LINK
+-------------------------------*/
 .switch {
   margin-top: 16px;
   font-size: 14px;
@@ -122,7 +139,9 @@ body.auth-body {
   text-decoration: underline;
 }
 
-/* Alert */
+/*-------------------------------
+   ALERT
+-------------------------------*/
 .alert {
   background: #f1f5f9;
   color: #b91c1c;
@@ -133,11 +152,13 @@ body.auth-body {
   border: 1px solid #fecaca;
 }
 
-/* Mobile Responsiveness */
+/*-------------------------------
+   MOBILE RESPONSIVENESS
+-------------------------------*/
 @media (max-width: 768px) {
   .bg-shield {
-    width: 200px;
-    height: 200px;
+    width: 400px;       /* still larger than card */
+    height: 400px;
   }
 
   .auth-container {
