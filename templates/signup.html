@@ -147,7 +147,7 @@ function validatePassword() {
   const strong = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
 
   if (!strong.test(pass)) {
-    msg.innerText = "Password must be 8+ chars with upper, lower, number, symbol";
+    msg.innerText = "Password must be 8+ characters including uppercase, lowercase, numbers & symbols";
     msg.style.color = "red";
     return false;
   }
