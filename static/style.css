@@ -176,7 +176,7 @@ body.auth-body {
 
 /* Headline */
 .headline {
-  font-size: 38px;
+  font-size: 44px;
   font-weight: 700;
   margin-bottom: 12px;
   letter-spacing: -0.5px;
@@ -185,7 +185,7 @@ body.auth-body {
 /* Subhead */
 .subhead {
   color: #94a3b8;
-  font-size: 15px;
+  font-size: 30px;
   max-width: 750px;
   margin: auto;
   line-height: 1.7;
@@ -204,7 +204,7 @@ body.auth-body {
   justify-content: center;
   margin: 12px 0;
   color: #cbd5f5;
-  font-size: 15px;
+  font-size: 25px;
 }
 
 .feature-list i {
@@ -218,7 +218,7 @@ body.auth-body {
 
 /* Scanner Card (glass effect) */
 .scanner-card {
-  margin-top: 40px;
+  margin-top: 10px;
   background: rgba(30, 41, 59, 0.6);
   backdrop-filter: blur(12px);
   padding: 30px;
@@ -234,8 +234,8 @@ body.auth-body {
 
 .form-row label {
   display: block;
-  margin-bottom: 6px;
-  font-size: 13px;
+  margin-bottom: 12px;
+  font-size: 20px;
   color: #94a3b8;
 }
 
