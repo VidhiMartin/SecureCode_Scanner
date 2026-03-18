@@ -12,7 +12,7 @@
 -------------------------------*/
 body {
   font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
-  background: #0f172a;
+  background: radial-gradient(circle at top, #1e293b, #020617);
   color: #f8fafc;
 }
 
@@ -144,12 +144,12 @@ body.auth-body {
 }
 
 /*-------------------------------
-   SCANNER PAGE (NEW)
+   SCANNER PAGE (ENTERPRISE)
 -------------------------------*/
 
 /* Layout */
 .container {
-  max-width: 1000px;
+  max-width: 1100px;
   margin: auto;
   padding: 20px;
 }
@@ -157,58 +157,79 @@ body.auth-body {
 /* Hero */
 .hero {
   text-align: center;
-  padding: 60px 20px 30px;
-  border-bottom: 1px solid #1e293b;
+  padding: 80px 20px 40px;
 }
 
+/* Big glowing shield */
 .shield-icon {
-  font-size: 40px;
+  font-size: 90px;
   color: #3b82f6;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
+  filter: drop-shadow(0 0 25px rgba(59,130,246,0.6));
+  animation: shieldPulse 2.5s infinite alternate;
 }
 
+@keyframes shieldPulse {
+  0% { transform: scale(1); opacity: 0.9; }
+  100% { transform: scale(1.05); opacity: 1; }
+}
+
+/* Headline */
 .headline {
-  font-size: 34px;
-  font-weight: 600;
-  margin-bottom: 10px;
+  font-size: 38px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  letter-spacing: -0.5px;
 }
 
+/* Subhead */
 .subhead {
   color: #94a3b8;
-  font-size: 14px;
-  max-width: 700px;
+  font-size: 15px;
+  max-width: 750px;
   margin: auto;
-  line-height: 1.6;
+  line-height: 1.7;
 }
 
 /* Features */
 .feature-list {
   list-style: none;
-  margin-top: 25px;
+  margin-top: 30px;
 }
 
 .feature-list li {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   justify-content: center;
-  margin: 10px 0;
+  margin: 12px 0;
   color: #cbd5f5;
+  font-size: 15px;
 }
 
-/* Scanner Card */
+.feature-list i {
+  font-size: 18px;
+}
+
+/* Colored icons */
+.bullet-vuln { color: #ef4444; }
+.bullet-cve { color: #f59e0b; }
+.bullet-patch { color: #22c55e; }
+
+/* Scanner Card (glass effect) */
 .scanner-card {
-  margin-top: 30px;
-  background: #1e293b;
-  padding: 25px;
-  border-radius: 12px;
-  border: 1px solid #334155;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  margin-top: 40px;
+  background: rgba(30, 41, 59, 0.6);
+  backdrop-filter: blur(12px);
+  padding: 30px;
+  border-radius: 16px;
+  border: 1px solid rgba(59,130,246,0.2);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
 }
 
 /* Form */
 .form-row {
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .form-row label {
@@ -221,10 +242,10 @@ body.auth-body {
 textarea,
 select {
   width: 100%;
-  padding: 12px;
-  border-radius: 8px;
+  padding: 14px;
+  border-radius: 10px;
   border: 1px solid #334155;
-  background: #0f172a;
+  background: #020617;
   color: #f8fafc;
   font-size: 14px;
 }
@@ -233,46 +254,51 @@ textarea:focus,
 select:focus {
   outline: none;
   border-color: #3b82f6;
-  box-shadow: 0 0 8px rgba(59,130,246,0.25);
+  box-shadow: 0 0 10px rgba(59,130,246,0.3);
 }
 
 /* Button */
 button {
   margin-top: 10px;
   width: 100%;
-  padding: 12px;
+  padding: 14px;
   background: linear-gradient(135deg, #3b82f6, #2563eb);
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   color: white;
-  font-size: 14px;
+  font-size: 15px;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 button:hover {
-  box-shadow: 0 6px 15px rgba(37,99,235,0.35);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 25px rgba(37,99,235,0.4);
 }
 
 /* Result Card */
 .result-card {
-  margin-top: 25px;
-  background: #020617;
-  padding: 20px;
-  border-radius: 12px;
-  border: 1px solid #334155;
+  margin-top: 30px;
+  background: rgba(2,6,23,0.85);
+  backdrop-filter: blur(10px);
+  padding: 25px;
+  border-radius: 14px;
+  border: 1px solid rgba(59,130,246,0.2);
 }
 
 .result-card h2 {
   font-size: 18px;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
+/* Code block */
 pre {
   background: #020617;
-  padding: 15px;
-  border-radius: 8px;
+  padding: 16px;
+  border-radius: 10px;
   overflow-x: auto;
   font-size: 13px;
+  border: 1px solid #1e293b;
 }
 
 /*-------------------------------
@@ -280,7 +306,11 @@ pre {
 -------------------------------*/
 @media (max-width: 768px) {
   .headline {
-    font-size: 26px;
+    font-size: 28px;
+  }
+
+  .shield-icon {
+    font-size: 70px;
   }
 
   .container {
@@ -288,6 +318,6 @@ pre {
   }
 
   .scanner-card {
-    padding: 18px;
+    padding: 20px;
   }
 }
