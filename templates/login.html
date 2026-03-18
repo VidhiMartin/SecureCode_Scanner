@@ -12,34 +12,19 @@
   <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
     <!-- Shield base -->
     <path d="M256 32L96 96v144c0 112 80 192 160 224 80-32 160-112 160-224V96L256 32z"
-          fill="url(#shieldGrad)" stroke="url(#borderGrad)" stroke-width="8" filter="url(#glow)"/>
+          fill="url(#shieldGrad)" stroke="#3b82f6" stroke-width="3"/>
     
-    <!-- Cracks -->
-    <path d="M256 50 L260 120 L240 140" stroke="#3b82f6" stroke-width="2" opacity="0.6"/>
-    <path d="M200 100 L220 160" stroke="#60a5fa" stroke-width="1.5" opacity="0.5"/>
-    <path d="M312 120 L300 200" stroke="#3b82f6" stroke-width="1.5" opacity="0.5"/>
+    <!-- Subtle cracks -->
+    <path d="M256 50 L260 120 L245 135" stroke="#60a5fa" stroke-width="1.2" opacity="0.3"/>
+    <path d="M200 100 L215 160" stroke="#60a5fa" stroke-width="1" opacity="0.2"/>
+    <path d="M312 120 L302 190" stroke="#60a5fa" stroke-width="1" opacity="0.2"/>
     
     <defs>
-      <!-- Fill Gradient -->
+      <!-- Base gradient -->
       <linearGradient id="shieldGrad" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stop-color="#1e40af"/>
-        <stop offset="100%" stop-color="#3b82f6"/>
+        <stop offset="0%" stop-color="#0f172a"/>
+        <stop offset="100%" stop-color="#1e293b"/>
       </linearGradient>
-
-      <!-- Border Gradient -->
-      <linearGradient id="borderGrad" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stop-color="#60a5fa"/>
-        <stop offset="100%" stop-color="#0ea5e9"/>
-      </linearGradient>
-
-      <!-- Glow Filter -->
-      <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-        <feGaussianBlur stdDeviation="8" result="blur"/>
-        <feMerge>
-          <feMergeNode in="blur"/>
-          <feMergeNode in="SourceGraphic"/>
-        </feMerge>
-      </filter>
     </defs>
   </svg>
 </div>
@@ -72,7 +57,7 @@
       <button class="btn-primary" type="submit">Sign In</button>
     </form>
 
-    <p class="switch strong-text">
+    <p class="switch">
       Don’t have an account? 
       <a href="/signup">Create one</a>
     </p>
