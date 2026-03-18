@@ -162,7 +162,7 @@ body.auth-body {
 
 /* Big glowing shield */
 .shield-icon {
-  font-size: 120px;
+  font-size: 140px;
   color: #3b82f6;
   margin-bottom: 20px;
   filter: drop-shadow(0 0 25px rgba(59,130,246,0.6));
