@@ -176,6 +176,7 @@ body.auth-body {
 
 /* Headline */
 .headline {
+  margin-top: 10px
   font-size: 50px;
   font-weight: 700;
   margin-bottom: 12px;
@@ -187,7 +188,7 @@ body.auth-body {
   color: #94a3b8;
   font-size: 20px;
   max-width: 750px;
-  margin: auto;
+  margin: 12px auto 0;
   line-height: 1.7;
 }
 
@@ -218,7 +219,7 @@ body.auth-body {
 
 /* Scanner Card (glass effect) */
 .scanner-card {
-  margin-top: 6px;
+  margin-top: -10px;
   background: rgba(30, 41, 59, 0.6);
   backdrop-filter: blur(12px);
   padding: 30px;
