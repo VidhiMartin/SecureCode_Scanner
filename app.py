@@ -30,13 +30,10 @@ ALLOWED_LANGUAGES = {
 # =========================
 def sanitize_input(code):
     code = code.strip()
-
     if len(code) > MAX_CODE_LENGTH:
         raise ValueError("Code exceeds allowed size.")
-
     code = code.replace("\x00", "")
     return code
-
 
 def is_strong_password(password):
     return re.match(
@@ -44,10 +41,8 @@ def is_strong_password(password):
         password
     )
 
-
 def is_valid_email(email):
     return re.match(r"^[^@]+@[^@]+\.[^@]+$", email)
-
 
 def login_required():
     return "user" in session
@@ -59,11 +54,20 @@ def login_required():
 def home():
     if not login_required():
         return redirect("/login")
-    return render_template("index.html")
+    return redirect("/scanner")  # Redirect authenticated users to scanner page
 
+@app.route("/scanner")
+def scanner():
+    if not login_required():
+        return redirect("/login")
+    return render_template("index.html")  # Your scanner UI
 
+# ---------- LOGIN ----------
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    if login_required():
+        return redirect("/scanner")  # Already logged in
+
     if request.method == "POST":
         email = request.form.get("email")
         password = request.form.get("password")
@@ -78,20 +82,23 @@ def login():
                 "password": password
             })
 
-            if res.user:
+            if res.session:  # Ensure valid session exists
                 session["user"] = res.user.id
-                return redirect("/")
+                return redirect("/scanner")
             else:
-                flash("Invalid credentials")
+                flash("Invalid credentials or email not verified")
 
         except Exception as e:
             flash(str(e))
 
     return render_template("login.html")
 
-
+# ---------- SIGNUP ----------
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
+    if login_required():
+        return redirect("/scanner")  # Already logged in
+
     if request.method == "POST":
         email = request.form.get("email")
         password = request.form.get("password")
@@ -110,21 +117,24 @@ def signup():
                 "password": password
             })
 
-            flash("Check your email to verify your account")
-            return redirect("/login")
+            if res.user:
+                flash("Check your email to verify your account")
+                return redirect("/login")
+            else:
+                flash("Signup failed. Possibly email already exists")
 
         except Exception as e:
             flash(str(e))
 
     return render_template("signup.html")
 
-
+# ---------- LOGOUT ----------
 @app.route("/logout")
 def logout():
     session.pop("user", None)
     return redirect("/login")
 
-
+# ---------- SCAN ----------
 @app.route("/scan", methods=["POST"])
 def scan():
     if not login_required():
@@ -138,14 +148,12 @@ def scan():
             return jsonify({"error": "Unsupported language"}), 400
 
         code = sanitize_input(code)
-
         result = analyze_code(code, language)
 
         return jsonify(result)
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
 
 # =========================
 # Run
