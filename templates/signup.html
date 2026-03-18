@@ -10,13 +10,36 @@
 <!-- Background Shield -->
 <div class="bg-shield">
   <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+    <!-- Shield base -->
     <path d="M256 32L96 96v144c0 112 80 192 160 224 80-32 160-112 160-224V96L256 32z"
-          fill="url(#grad)" opacity="0.15"/>
+          fill="url(#shieldGrad)" stroke="url(#borderGrad)" stroke-width="6" filter="url(#glow)"/>
+    
+    <!-- Glowing cracks -->
+    <path d="M256 50 L260 120 L245 135" stroke="#3b82f6" stroke-width="1.5" opacity="0.4"/>
+    <path d="M200 100 L215 160" stroke="#60a5fa" stroke-width="1.2" opacity="0.3"/>
+    <path d="M312 120 L302 190" stroke="#3b82f6" stroke-width="1.2" opacity="0.3"/>
+    
     <defs>
-      <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
+      <!-- Shield fill gradient -->
+      <linearGradient id="shieldGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#0f172a"/>
+        <stop offset="100%" stop-color="#1e293b"/>
+      </linearGradient>
+
+      <!-- Shield border gradient -->
+      <linearGradient id="borderGrad" x1="0" y1="0" x2="1" y2="1">
         <stop offset="0%" stop-color="#3b82f6"/>
         <stop offset="100%" stop-color="#60a5fa"/>
       </linearGradient>
+
+      <!-- Glow filter -->
+      <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="6" result="blur"/>
+        <feMerge>
+          <feMergeNode in="blur"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
     </defs>
   </svg>
 </div>
@@ -37,7 +60,7 @@
       {% endif %}
     {% endwith %}
 
-    <form method="POST" onsubmit="return validatePassword()">
+    <form method="POST" onsubmit="return validateForm()">
 
       <div class="input-group">
         <input 
@@ -53,11 +76,23 @@
 
       <div class="input-group">
         <input 
+          type="email" 
+          id="confirm-email" 
+          name="confirm_email" 
+          required 
+          placeholder="Confirm Email"
+          oninput="validateConfirmEmail()"
+        >
+        <small id="confirm-msg"></small>
+      </div>
+
+      <div class="input-group">
+        <input 
           type="password" 
           id="password" 
           name="password" 
           required 
-          placeholder="Password"
+          placeholder="Create Password"
         >
         <small id="pass-msg"></small>
       </div>
@@ -77,7 +112,6 @@
 function validateEmail() {
   const email = document.getElementById("email").value;
   const msg = document.getElementById("email-msg");
-
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   if (email.length === 0) {
@@ -91,10 +125,25 @@ function validateEmail() {
   }
 }
 
+function validateConfirmEmail() {
+  const email = document.getElementById("email").value;
+  const confirm = document.getElementById("confirm-email").value;
+  const msg = document.getElementById("confirm-msg");
+
+  if (confirm.length === 0) {
+    msg.innerText = "";
+  } else if (email === confirm) {
+    msg.innerText = "Emails match";
+    msg.style.color = "green";
+  } else {
+    msg.innerText = "Emails do not match";
+    msg.style.color = "red";
+  }
+}
+
 function validatePassword() {
   const pass = document.getElementById("password").value;
   const msg = document.getElementById("pass-msg");
-
   const strong = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
 
   if (!strong.test(pass)) {
@@ -104,6 +153,17 @@ function validatePassword() {
   }
 
   msg.innerText = "";
+  return true;
+}
+
+function validateForm() {
+  const emailValid = document.getElementById("email-msg").style.color === "green";
+  const confirmValid = document.getElementById("confirm-msg").style.color === "green";
+  const passwordValid = validatePassword();
+
+  if (!emailValid || !confirmValid || !passwordValid) {
+    return false;
+  }
   return true;
 }
 </script>
