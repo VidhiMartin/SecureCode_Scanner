@@ -166,7 +166,7 @@ body.auth-body {
 
 /* Shield */
 .shield-icon {
-  font-size: 140px;
+  font-size: 160px;
   color: #3b82f6;
   margin-bottom: 18px;
   filter: drop-shadow(0 0 30px rgba(59,130,246,0.6));
@@ -181,7 +181,7 @@ body.auth-body {
 /* Headline */
 .headline {
   margin-top: 10px;
-  font-size: 56px;   /* reduced from 80px → more professional */
+  font-size: 45px;   /* reduced from 80px → more professional */
   font-weight: 700;
   margin-bottom: 14px;
   letter-spacing: -0.5px;
