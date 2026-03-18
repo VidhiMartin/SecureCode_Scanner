@@ -1,136 +1,120 @@
 /* Reset */
 * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 /* Body */
 body.auth-body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background: radial-gradient(circle at 30% 30%, #1e3a8a, #0f172a 70%);
+  font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+  background: #0f172a;
   height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #c9d1d9;
+  color: #f8fafc;
 }
 
-/* Background Shield */
+/* Shield background */
 .bg-shield {
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 900px;
-  height: 900px;
+  width: 500px;
+  height: 500px;
   z-index: 0;
   pointer-events: none;
+  opacity: 0.2;
 }
 
-.bg-shield svg path {
-  animation: pulseGlow 3s infinite alternate;
-}
-
-/* Glow pulse */
-@keyframes pulseGlow {
-  0% { filter: drop-shadow(0 0 10px rgba(59,130,246,0.3)); }
-  100% { filter: drop-shadow(0 0 25px rgba(59,130,246,0.6)); }
-}
-
-/* Cracks animation */
-.bg-shield path[stroke="#3b82f6"],
-.bg-shield path[stroke="#60a5fa"] {
-  animation: crackGlow 2s infinite alternate;
-}
-
-@keyframes crackGlow {
-  0% { opacity: 0.3; }
-  100% { opacity: 0.7; }
+.bg-shield svg {
+  width: 100%;
+  height: 100%;
 }
 
 /* Container */
 .auth-container {
   width: 100%;
-  max-width: 420px;
+  max-width: 400px;
   position: relative;
   z-index: 2;
 }
 
 /* Card */
 .auth-card {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(8px);
-  padding: 42px;
-  border-radius: 18px;
-  box-shadow: 0 25px 70px rgba(0,0,0,0.25);
+  background: #1e293b;
+  padding: 36px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
   text-align: center;
 }
 
-/* Logo & subtitle */
+/* Logo & Subtitle */
 .logo {
-  font-size: 28px;
-  font-weight: 700;
-  color: #0f172a;
-  margin-bottom: 8px;
+  font-size: 26px;
+  font-weight: 600;
+  color: #f8fafc;
+  margin-bottom: 6px;
 }
 
 .subtitle {
   font-size: 14px;
-  color: #64748b;
-  margin-bottom: 24px;
+  color: #94a3b8;
+  margin-bottom: 20px;
 }
 
-/* Input groups */
+/* Input fields */
 .input-group {
-  margin-bottom: 16px;
+  margin-bottom: 14px;
   text-align: left;
 }
 
 .input-group input {
   width: 100%;
   padding: 12px 14px;
-  border: 1px solid #cbd5e1;
-  border-radius: 10px;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  background: #0f172a;
+  color: #f8fafc;
   font-size: 14px;
-  transition: all 0.2s ease;
 }
 
 .input-group input:focus {
   border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
   outline: none;
+  box-shadow: 0 0 0 2px rgba(59,130,246,0.2);
 }
 
 /* Buttons */
 .btn-primary {
   width: 100%;
   padding: 12px;
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  background: #3b82f6;
   color: white;
   border: none;
-  border-radius: 10px;
+  border-radius: 8px;
   font-size: 15px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 20px rgba(37,99,235,0.35);
+  background: #2563eb;
+  box-shadow: 0 5px 15px rgba(37,99,235,0.3);
 }
 
 /* Switch text */
 .switch {
-  margin-top: 18px;
+  margin-top: 16px;
   font-size: 14px;
-  color: #1e293b;
-  font-weight: 500;
+  color: #94a3b8;
 }
 
 .switch a {
-  color: #2563eb;
-  font-weight: 600;
+  color: #3b82f6;
+  font-weight: 500;
   text-decoration: none;
 }
 
@@ -140,11 +124,11 @@ body.auth-body {
 
 /* Alert */
 .alert {
-  background: #fef2f2;
+  background: #f1f5f9;
   color: #b91c1c;
   padding: 10px;
-  border-radius: 8px;
-  margin-bottom: 15px;
+  border-radius: 6px;
+  margin-bottom: 12px;
   font-size: 13px;
   border: 1px solid #fecaca;
 }
@@ -152,9 +136,8 @@ body.auth-body {
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
   .bg-shield {
-    width: 300px;
-    height: 300px;
-    filter: blur(1.5px) drop-shadow(0 0 20px rgba(59,130,246,0.35));
+    width: 200px;
+    height: 200px;
   }
 
   .auth-container {
@@ -163,12 +146,11 @@ body.auth-body {
   }
 
   .auth-card {
-    padding: 30px;
-    border-radius: 14px;
+    padding: 28px;
   }
 
   .logo {
-    font-size: 24px;
+    font-size: 22px;
   }
 
   .subtitle {
