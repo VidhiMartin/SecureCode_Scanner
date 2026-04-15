@@ -1,20 +1,18 @@
 import os
 import re
-from flask import Flask, render_template, request, jsonify, session, redirect, flash
-from supabase import create_client
+from flask import Flask, render_template, request, jsonify, redirect
 from utils import analyze_code
+
+import firebase_admin
+from firebase_admin import credentials, auth
 
 app = Flask(__name__)
 
 # =========================
-# Config / Initialization
+# Firebase Init
 # =========================
-app.secret_key = os.getenv("SECRET_KEY", "dev-secret")
-
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-
-supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+cred = credentials.Certificate("firebase-service-account.json")
+firebase_admin.initialize_app(cred)
 
 # =========================
 # Security settings
@@ -35,109 +33,43 @@ def sanitize_input(code):
     code = code.replace("\x00", "")
     return code
 
-def is_strong_password(password):
-    return re.match(
-        r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$',
-        password
-    )
+def get_current_user():
+    auth_header = request.headers.get("Authorization")
 
-def is_valid_email(email):
-    return re.match(r"^[^@]+@[^@]+\.[^@]+$", email)
+    if not auth_header:
+        return None
 
-def login_required():
-    return "user" in session
+    try:
+        token = auth_header.split(" ")[1]
+        decoded = auth.verify_id_token(token)
+        return decoded
+    except Exception:
+        return None
 
 # =========================
 # Routes
 # =========================
 @app.route("/")
 def home():
-    if not login_required():
-        return redirect("/login")
-    return redirect("/scanner")  # Redirect authenticated users to scanner page
+    return redirect("/scanner")
 
 @app.route("/scanner")
 def scanner():
-    if not login_required():
-        return redirect("/login")
-    return render_template("index.html")  # Your scanner UI
+    return render_template("index.html")
 
-# ---------- LOGIN ----------
-@app.route("/login", methods=["GET", "POST"])
+@app.route("/login")
 def login():
-    if login_required():
-        return redirect("/scanner")  # Already logged in
-
-    if request.method == "POST":
-        email = request.form.get("email")
-        password = request.form.get("password")
-
-        if not is_valid_email(email):
-            flash("Invalid email format")
-            return redirect("/login")
-
-        try:
-            res = supabase.auth.sign_in_with_password({
-                "email": email,
-                "password": password
-            })
-
-            if res.session:  # Ensure valid session exists
-                session["user"] = res.user.id
-                return redirect("/scanner")
-            else:
-                flash("Invalid credentials or email not verified")
-
-        except Exception as e:
-            flash(str(e))
-
     return render_template("login.html")
 
-# ---------- SIGNUP ----------
-@app.route("/signup", methods=["GET", "POST"])
+@app.route("/signup")
 def signup():
-    if login_required():
-        return redirect("/scanner")  # Already logged in
-
-    if request.method == "POST":
-        email = request.form.get("email")
-        password = request.form.get("password")
-
-        if not is_valid_email(email):
-            flash("Invalid email format")
-            return redirect("/signup")
-
-        if not is_strong_password(password):
-            flash("Password must be 8+ chars with upper, lower, number, special char")
-            return redirect("/signup")
-
-        try:
-            res = supabase.auth.sign_up({
-                "email": email,
-                "password": password
-            })
-
-            if res.user:
-                flash("Check your email to verify your account")
-                return redirect("/login")
-            else:
-                flash("Signup failed. Possibly email already exists")
-
-        except Exception as e:
-            flash(str(e))
-
     return render_template("signup.html")
-
-# ---------- LOGOUT ----------
-@app.route("/logout")
-def logout():
-    session.pop("user", None)
-    return redirect("/login")
 
 # ---------- SCAN ----------
 @app.route("/scan", methods=["POST"])
 def scan():
-    if not login_required():
+    user = get_current_user()
+    if not user:
         return jsonify({"error": "Unauthorized"}), 401
 
     try:
