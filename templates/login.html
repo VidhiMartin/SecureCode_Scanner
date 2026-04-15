@@ -7,40 +7,10 @@
 </head>
 <body class="auth-body">
 
-<!-- Background Shield -->
 <div class="bg-shield">
-  <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-    <!-- Shield base -->
+  <svg viewBox="0 0 512 512">
     <path d="M256 32L96 96v144c0 112 80 192 160 224 80-32 160-112 160-224V96L256 32z"
-          fill="url(#shieldGrad)" stroke="url(#borderGrad)" stroke-width="6" filter="url(#glow)"/>
-    
-    <!-- Glowing cracks -->
-    <path d="M256 50 L260 120 L245 135" stroke="#3b82f6" stroke-width="1.5" opacity="0.4"/>
-    <path d="M200 100 L215 160" stroke="#60a5fa" stroke-width="1.2" opacity="0.3"/>
-    <path d="M312 120 L302 190" stroke="#3b82f6" stroke-width="1.2" opacity="0.3"/>
-    
-    <defs>
-      <!-- Shield fill gradient -->
-      <linearGradient id="shieldGrad" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stop-color="#0f172a"/>
-        <stop offset="100%" stop-color="#1e293b"/>
-      </linearGradient>
-
-      <!-- Shield border gradient -->
-      <linearGradient id="borderGrad" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stop-color="#3b82f6"/>
-        <stop offset="100%" stop-color="#60a5fa"/>
-      </linearGradient>
-
-      <!-- Glow filter -->
-      <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-        <feGaussianBlur stdDeviation="6" result="blur"/>
-        <feMerge>
-          <feMergeNode in="blur"/>
-          <feMergeNode in="SourceGraphic"/>
-        </feMerge>
-      </filter>
-    </defs>
+          fill="#0f172a" stroke="#3b82f6" stroke-width="6"/>
   </svg>
 </div>
 
@@ -50,17 +20,7 @@
     <h1 class="logo">Secure Code Scanner</h1>
     <p class="subtitle">Sign in to your account</p>
 
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <div class="alert">
-          {% for msg in messages %}
-            <p>{{ msg }}</p>
-          {% endfor %}
-        </div>
-      {% endif %}
-    {% endwith %}
-
-    <form method="POST">
+    <form>
       <div class="input-group">
         <input type="email" name="email" required placeholder="Email">
       </div>
@@ -79,6 +39,38 @@
 
   </div>
 </div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "YOUR_KEY",
+  authDomain: "YOUR_DOMAIN",
+  projectId: "YOUR_PROJECT_ID"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+
+document.querySelector("form").onsubmit = async (e) => {
+  e.preventDefault();
+
+  const email = document.querySelector("input[name=email]").value;
+  const password = document.querySelector("input[name=password]").value;
+
+  try {
+    const userCred = await auth.signInWithEmailAndPassword(email, password);
+    const token = await userCred.user.getIdToken();
+
+    localStorage.setItem("token", token);
+    window.location.href = "/scanner";
+  } catch (err) {
+    alert(err.message);
+  }
+};
+</script>
 
 </body>
 </html>
