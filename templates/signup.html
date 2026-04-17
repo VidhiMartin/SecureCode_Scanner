@@ -7,6 +7,30 @@
 </head>
 <body class="auth-body">
 
+<!-- 🔵 GLOWING SHIELD BACKGROUND -->
+<div class="bg-shield">
+  <svg viewBox="0 0 512 512">
+    <path d="M256 32L96 96v144c0 112 80 192 160 224 80-32 160-112 160-224V96L256 32z"
+          fill="#020617" stroke="#0ea5e9" stroke-width="5" filter="url(#outerGlow)"/>
+
+    <path d="M256 80L140 120v120c0 90 60 150 116 180 56-30 116-90 116-180V120L256 80z"
+          fill="#38bdf8" opacity="0.2"/>
+
+    <path d="M260 60 L245 150 L270 190" stroke="#38bdf8" stroke-width="2" filter="url(#crackGlow)"/>
+    <path d="M210 120 L240 210" stroke="#0ea5e9" stroke-width="2" filter="url(#crackGlow)"/>
+    <path d="M310 130 L290 240" stroke="#38bdf8" stroke-width="2" filter="url(#crackGlow)"/>
+
+    <defs>
+      <filter id="outerGlow">
+        <feGaussianBlur stdDeviation="10"/>
+      </filter>
+      <filter id="crackGlow">
+        <feGaussianBlur stdDeviation="4"/>
+      </filter>
+    </defs>
+  </svg>
+</div>
+
 <div class="auth-container">
   <div class="auth-card">
 
@@ -14,26 +38,13 @@
     <p class="subtitle">Create your account</p>
 
     <form id="signupForm">
-
-      <div class="input-group">
-        <input type="email" id="email" required placeholder="Email">
-      </div>
-
-      <div class="input-group">
-        <input type="email" id="confirm-email" required placeholder="Confirm Email">
-      </div>
-
-      <div class="input-group">
-        <input type="password" id="password" required placeholder="Create Password">
-      </div>
-
-      <button class="btn-primary" type="submit">Create Account</button>
+      <input type="email" id="email" required placeholder="Email">
+      <input type="email" id="confirm-email" required placeholder="Confirm Email">
+      <input type="password" id="password" required placeholder="Password">
+      <button type="submit">Sign Up</button>
     </form>
 
-    <p class="switch">
-      Already have an account? 
-      <a href="/login">Sign in</a>
-    </p>
+    <p>Already have an account? <a href="/login">Login</a></p>
 
   </div>
 </div>
@@ -49,7 +60,10 @@ const firebaseConfig = {
   projectId: "code-scanner-91d48"
 };
 
-firebase.initializeApp(firebaseConfig);
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
+
 const auth = firebase.auth();
 
 document.getElementById("signupForm").onsubmit = async (e) => {
