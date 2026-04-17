@@ -7,27 +7,18 @@
 </head>
 <body class="auth-body">
 
-<!-- 🔵 GLOWING SHIELD BACKGROUND -->
+<!-- 🔵 REALISTIC GLOW SHIELD -->
 <div class="bg-shield">
+  <div class="shield-glow"></div>
+
   <svg viewBox="0 0 512 512">
     <path d="M256 32L96 96v144c0 112 80 192 160 224 80-32 160-112 160-224V96L256 32z"
-          fill="#020617" stroke="#0ea5e9" stroke-width="5" filter="url(#outerGlow)"/>
+          class="shield-body"/>
 
-    <path d="M256 80L140 120v120c0 90 60 150 116 180 56-30 116-90 116-180V120L256 80z"
-          fill="#38bdf8" opacity="0.2"/>
-
-    <path d="M260 60 L245 150 L270 190" stroke="#38bdf8" stroke-width="2" filter="url(#crackGlow)"/>
-    <path d="M210 120 L240 210" stroke="#0ea5e9" stroke-width="2" filter="url(#crackGlow)"/>
-    <path d="M310 130 L290 240" stroke="#38bdf8" stroke-width="2" filter="url(#crackGlow)"/>
-
-    <defs>
-      <filter id="outerGlow">
-        <feGaussianBlur stdDeviation="10"/>
-      </filter>
-      <filter id="crackGlow">
-        <feGaussianBlur stdDeviation="4"/>
-      </filter>
-    </defs>
+    <path d="M260 60 L245 150 L270 190" class="crack"/>
+    <path d="M210 120 L240 210" class="crack"/>
+    <path d="M310 130 L290 240" class="crack"/>
+    <path d="M240 200 L260 300" class="crack"/>
   </svg>
 </div>
 
@@ -38,12 +29,21 @@
     <p class="subtitle">Sign in to your account</p>
 
     <form>
-      <input type="email" name="email" required placeholder="Email">
-      <input type="password" name="password" required placeholder="Password">
-      <button type="submit">Sign In</button>
+      <div class="input-group">
+        <input type="email" name="email" required placeholder="Email">
+      </div>
+
+      <div class="input-group">
+        <input type="password" name="password" required placeholder="Password">
+      </div>
+
+      <button class="btn-primary" type="submit">Sign In</button>
     </form>
 
-    <p>Don't have an account? <a href="/signup">Sign up</a></p>
+    <p class="switch">
+      Don’t have an account? 
+      <a href="/signup">Create one</a>
+    </p>
 
   </div>
 </div>
