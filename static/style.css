@@ -364,4 +364,14 @@ pre {
   .scanner-card {
     padding: 20px;
   }
+
+   .bg-shield {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(1.8);
+  opacity: 0.35;
+  z-index: -1;
+  pointer-events: none;
+  }
 }
