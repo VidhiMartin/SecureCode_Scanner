@@ -17,7 +17,7 @@ body.auth-body {
   align-items: center;
   height: 100vh;
   position: relative;
-  z-index: 1;
+  z-index: 1; /* ensures UI is above shield */
 }
 
 .auth-card {
@@ -75,7 +75,7 @@ body.auth-body {
 }
 
 /* =========================
-   🔵 GLOW SHIELD (FINAL)
+   🔵 GLOW SHIELD (FINAL CLEAN)
 ========================= */
 
 .bg-shield {
@@ -83,11 +83,10 @@ body.auth-body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%) scale(1.9);
-  z-index: 0;
+  z-index: -1; /* CRITICAL: always behind UI */
   pointer-events: none;
 }
 
-/* SVG */
 .bg-shield svg {
   width: 700px;
   height: 700px;
@@ -98,7 +97,6 @@ body.auth-body {
   fill: #020617;
   stroke: #0ea5e9;
   stroke-width: 4;
-
   filter: drop-shadow(0 0 20px rgba(14,165,233,0.3));
 }
 
@@ -115,7 +113,7 @@ body.auth-body {
     drop-shadow(0 0 25px rgba(56,189,248,0.6));
 }
 
-/* 🔥 Light leaking (MOST IMPORTANT) */
+/* Light leak */
 .shield-glow {
   position: absolute;
   width: 600px;
@@ -132,7 +130,7 @@ body.auth-body {
   opacity: 0.9;
 }
 
-/* Glow animation */
+/* Animation */
 @keyframes glowPulse {
   0% { opacity: 0.6; }
   50% { opacity: 1; }
