@@ -5,56 +5,31 @@
 <title>Secure Code Scanner</title>
 
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"/>
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 
 <body>
 
 <div class="container">
-    <div class="scanner-card">
-        <form id="scanForm">
+    <form id="scanForm">
+        <select name="language">
+            <option>python</option>
+            <option>javascript</option>
+            <option>java</option>
+            <option>c</option>
+            <option>cpp</option>
+        </select>
 
-            <div class="form-row">
-                <label>Language</label>
-                <select name="language">
-                    <option>python</option>
-                    <option>javascript</option>
-                    <option>java</option>
-                    <option>c</option>
-                    <option>cpp</option>
-                    <option>csharp</option>
-                    <option>go</option>
-                    <option>rust</option>
-                    <option>php</option>
-                    <option>ruby</option>
-                    <option>typescript</option>
-                </select>
-            </div>
+        <textarea name="code" rows="10"></textarea>
 
-            <div class="form-row">
-                <label>Code</label>
-                <textarea name="code" rows="14"></textarea>
-            </div>
-
-            <button type="submit">Scan Code</button>
-
-        </form>
-    </div>
+        <button type="submit">Scan</button>
+    </form>
 </div>
 
-<div class="container">
-    <div id="result-card" style="display:none;">
-        <pre><code id="result"></code></pre>
-    </div>
-</div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<pre id="result"></pre>
 
 <script>
-// 🔒 Require login
+// Require login
 if (!localStorage.getItem("token")) {
     window.location.href = "/login";
 }
@@ -74,11 +49,7 @@ document.getElementById("scanForm").onsubmit = async (e) => {
     });
 
     const data = await res.json();
-
-    const codeBlock = document.getElementById("result");
-    codeBlock.textContent = JSON.stringify(data, null, 2);
-
-    document.getElementById("result-card").style.display = "block";
+    document.getElementById("result").textContent = JSON.stringify(data, null, 2);
 };
 </script>
 
