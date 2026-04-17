@@ -1,377 +1,144 @@
-/*-------------------------------
-   RESET
--------------------------------*/
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-/*-------------------------------
-   GLOBAL
--------------------------------*/
-body {
-  font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
-  background: radial-gradient(circle at top, #1e293b, #020617);
-  color: #f8fafc;
-}
-
-/*-------------------------------
-   AUTH PAGE (UNCHANGED)
--------------------------------*/
+/* =========================
+   BASE
+========================= */
 body.auth-body {
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow-x: hidden;
-  position: relative;
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #020617;
+  color: white;
 }
+
+/* =========================
+   AUTH LAYOUT
+========================= */
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  position: relative;
+  z-index: 1;
+}
+
+.auth-card {
+  background: rgba(15, 23, 42, 0.9);
+  padding: 30px;
+  border-radius: 12px;
+  width: 320px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+  backdrop-filter: blur(10px);
+}
+
+.logo {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #94a3b8;
+}
+
+.input-group {
+  margin-bottom: 15px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: none;
+  outline: none;
+  background: #0f172a;
+  color: white;
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 10px;
+  background: #0ea5e9;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+}
+
+.switch {
+  text-align: center;
+  margin-top: 15px;
+}
+
+.switch a {
+  color: #38bdf8;
+  text-decoration: none;
+}
+
+/* =========================
+   🔵 GLOW SHIELD (FINAL)
+========================= */
 
 .bg-shield {
   position: fixed;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
-  width: 800px;
-  height: 800px;
+  transform: translate(-50%, -50%) scale(1.9);
   z-index: 0;
   pointer-events: none;
 }
 
-.bg-shield svg path {
-  animation: pulseGlow 3s infinite alternate;
+/* SVG */
+.bg-shield svg {
+  width: 700px;
+  height: 700px;
 }
 
-@keyframes pulseGlow {
-  0% { filter: drop-shadow(0 0 10px rgba(59,130,246,0.3)); }
-  100% { filter: drop-shadow(0 0 25px rgba(59,130,246,0.6)); }
+/* Shield body */
+.shield-body {
+  fill: #020617;
+  stroke: #0ea5e9;
+  stroke-width: 4;
+
+  filter: drop-shadow(0 0 20px rgba(14,165,233,0.3));
 }
 
-.bg-shield path[stroke="#3b82f6"],
-.bg-shield path[stroke="#60a5fa"] {
-  animation: crackGlow 2s infinite alternate;
+/* Cracks */
+.crack {
+  stroke: #38bdf8;
+  stroke-width: 2;
+  fill: none;
+  stroke-linecap: round;
+
+  filter:
+    drop-shadow(0 0 6px #38bdf8)
+    drop-shadow(0 0 12px #0ea5e9)
+    drop-shadow(0 0 25px rgba(56,189,248,0.6));
 }
 
-@keyframes crackGlow {
-  0% { opacity: 0.3; }
-  100% { opacity: 0.7; }
+/* 🔥 Light leaking (MOST IMPORTANT) */
+.shield-glow {
+  position: absolute;
+  width: 600px;
+  height: 600px;
+
+  background: radial-gradient(circle,
+    rgba(56,189,248,0.5) 0%,
+    rgba(14,165,233,0.3) 30%,
+    rgba(0,0,0,0) 70%
+  );
+
+  filter: blur(50px);
+  transform: translate(40px, 70px);
+  opacity: 0.9;
 }
 
-.auth-container {
-  width: 100%;
-  max-width: 400px;
-  position: relative;
-  z-index: 2;
+/* Glow animation */
+@keyframes glowPulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
 }
 
-.auth-card {
-  background: #1e293b;
-  padding: 40px;
-  border-radius: 14px;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-  text-align: center;
-  border: 1px solid rgba(59,130,246,0.3);
-}
-
-.logo {
-  font-size: 28px;
-  font-weight: 600;
-  margin-bottom: 8px;
-}
-
-.subtitle {
-  font-size: 14px;
-  color: #94a3b8;
-  margin-bottom: 24px;
-}
-
-.input-group {
-  margin-bottom: 16px;
-  text-align: left;
-}
-
-.input-group input {
-  width: 100%;
-  padding: 14px 16px;
-  border: 1px solid #334155;
-  border-radius: 10px;
-  background: #0f172a;
-  color: #f8fafc;
-  font-size: 14px;
-}
-
-.input-group input:focus {
-  border-color: #3b82f6;
-  outline: none;
-  box-shadow: 0 0 10px rgba(59,130,246,0.3);
-}
-
-.btn-primary {
-  width: 100%;
-  padding: 14px;
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-size: 15px;
-  cursor: pointer;
-}
-
-.btn-primary:hover {
-  box-shadow: 0 8px 20px rgba(37,99,235,0.35);
-}
-
-.switch {
-  margin-top: 18px;
-  font-size: 14px;
-  color: #94a3b8;
-}
-
-.switch a {
-  color: #3b82f6;
-  text-decoration: none;
-}
-
-.alert {
-  background: #f1f5f9;
-  color: #b91c1c;
-  padding: 10px;
-  border-radius: 6px;
-  margin-bottom: 12px;
-  font-size: 13px;
-  border: 1px solid #fecaca;
-}
-
-/*-------------------------------
-   SCANNER PAGE (ENTERPRISE)
--------------------------------*/
-
-/*-------------------------------
-   LAYOUT
--------------------------------*/
-.container {
-  max-width: 1100px;
-  margin: auto;
-  padding: 20px;
-}
-
-/*-------------------------------
-   HERO
--------------------------------*/
-.hero {
-  text-align: center;
-  padding: 70px 20px 20px;
-}
-
-/* Shield */
-.shield-icon {
-  font-size: 140px;
-  color: #3b82f6;
-  margin-bottom: 18px;
-  filter: drop-shadow(0 0 20px rgba(59,130,246,0.5));
-
-  animation: shieldWiggle 4s ease-in-out infinite;
-}
-
-/* Simple up-down motion */
-@keyframes shieldWiggle {
-  0%   { transform: translateY(0); }
-  50%  { transform: translateY(-5px); }
-  100% { transform: translateY(0); }
-}
-
-@keyframes shieldPulse {
-  0% { transform: scale(1); opacity: 0.9; }
-  100% { transform: scale(1.05); opacity: 1; }
-}
-
-/* Headline */
-.headline {
-  margin-top: 10px;
-  font-size: 45px;   /* reduced from 80px → more professional */
-  font-weight: 700;
-  margin-bottom: 14px;
-  letter-spacing: -0.5px;
-}
-
-/* Subhead container */
-.subhead {
-  max-width: 750px;
-  margin: 18px auto 0;
-  text-align: center;
-  line-height: 1.7;
-}
-
-/* Line 1: NVIDIA */
-.model-line {
-  display: block;
-  font-size: 20px;
-  color: #cbd5f5;
-  margin-bottom: 10px;
-}
-
-/* Line 2: Description */
-.desc-line {
-  display: block;
-  font-size: 17px;
-  color: #94a3b8;
-}
-
-/*-------------------------------
-   FEATURES
--------------------------------*/
-.feature-list {
-  list-style: none;
-  margin-top: 30px;
-}
-
-.feature-list li {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  justify-content: center;
-  margin: 12px 0;
-  color: #cbd5f5;
-  font-size: 17px;
-}
-
-.feature-list i {
-  font-size: 18px;
-}
-
-/* Colored icons */
-.bullet-vuln { color: #ef4444; }
-.bullet-cve { color: #f59e0b; }
-.bullet-patch { color: #22c55e; }
-
-/*-------------------------------
-   SCANNER CARD
--------------------------------*/
-.scanner-card {
-  margin-top: -8px;
-  background: rgba(30, 41, 59, 0.6);
-  backdrop-filter: blur(12px);
-  padding: 30px;
-  border-radius: 16px;
-  border: 1px solid rgba(59,130,246,0.2);
-  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
-}
-
-/*-------------------------------
-   FORM
--------------------------------*/
-.form-row {
-  margin-bottom: 18px;
-}
-
-.form-row label {
-  display: block;
-  margin-bottom: 10px;
-  font-size: 16px;
-  color: #94a3b8;
-}
-
-textarea,
-select {
-  width: 100%;
-  padding: 14px;
-  border-radius: 10px;
-  border: 1px solid #334155;
-  background: #020617;
-  color: #f8fafc;
-  font-size: 15px;
-}
-
-textarea:focus,
-select:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 10px rgba(59,130,246,0.3);
-}
-
-/*-------------------------------
-   BUTTON
--------------------------------*/
-button {
-  margin-top: 12px;
-  width: 100%;
-  padding: 14px;
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
-  border: none;
-  border-radius: 10px;
-  color: white;
-  font-size: 16px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 10px 25px rgba(37,99,235,0.4);
-}
-
-/*-------------------------------
-   RESULT
--------------------------------*/
-.result-card {
-  margin-top: 30px;
-  background: rgba(2,6,23,0.85);
-  backdrop-filter: blur(10px);
-  padding: 25px;
-  border-radius: 14px;
-  border: 1px solid rgba(59,130,246,0.2);
-}
-
-.result-card h2 {
-  font-size: 20px;
-  margin-bottom: 12px;
-}
-
-pre {
-  background: #020617;
-  padding: 16px;
-  border-radius: 10px;
-  overflow-x: auto;
-  font-size: 13px;
-  border: 1px solid #1e293b;
-}
-
-/*-------------------------------
-   RESPONSIVE
--------------------------------*/
-@media (max-width: 768px) {
-  .headline {
-    font-size: 32px;
-  }
-
-  .shield-icon {
-    font-size: 80px;
-  }
-
-  .model-line {
-    font-size: 16px;
-  }
-
-  .desc-line {
-    font-size: 14px;
-  }
-
-  .container {
-    padding: 15px;
-  }
-
-  .scanner-card {
-    padding: 20px;
-  }
-
-   .bg-shield {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(1.8);
-  opacity: 0.35;
-  z-index: -1;
-  pointer-events: none;
-  }
+.shield-glow {
+  animation: glowPulse 4s ease-in-out infinite;
 }
