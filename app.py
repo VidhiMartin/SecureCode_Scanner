@@ -1,5 +1,6 @@
 import os
 import re
+import json
 from flask import Flask, render_template, request, jsonify, redirect
 from utils import analyze_code
 
@@ -9,10 +10,16 @@ from firebase_admin import credentials, auth
 app = Flask(__name__)
 
 # =========================
-# Firebase Init
+# Firebase Init (FIXED)
 # =========================
-cred = credentials.Certificate("firebase-service-account.json")
-firebase_admin.initialize_app(cred)
+firebase_key = os.getenv("FIREBASE_KEY")
+
+if not firebase_admin._apps:
+    if not firebase_key:
+        raise Exception("FIREBASE_KEY not set in environment")
+
+    cred = credentials.Certificate(json.loads(firebase_key))
+    firebase_admin.initialize_app(cred)
 
 # =========================
 # Security settings
