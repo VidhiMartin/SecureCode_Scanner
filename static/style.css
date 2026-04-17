@@ -241,3 +241,95 @@ button:hover {
 .shield-glow {
   animation: glowPulse 4s ease-in-out infinite;
 }
+
+/* =========================
+   HERO SHIELD ANIMATION
+========================= */
+
+.floating-shield {
+  font-size: 60px;
+  color: #38bdf8;
+  margin-bottom: 20px;
+
+  animation: floatShield 3s ease-in-out infinite;
+
+  filter:
+    drop-shadow(0 0 10px #38bdf8)
+    drop-shadow(0 0 20px rgba(56,189,248,0.6));
+}
+
+@keyframes floatShield {
+  0%   { transform: translateY(0px); }
+  50%  { transform: translateY(-12px); }
+  100% { transform: translateY(0px); }
+}
+
+/* =========================
+   TEXT POLISH
+========================= */
+
+.headline {
+  font-size: 2.4rem;
+  margin-bottom: 12px;
+  letter-spacing: 0.5px;
+}
+
+.subhead {
+  color: #94a3b8;
+  max-width: 800px;
+  margin: auto;
+  line-height: 1.6;
+}
+
+.model-line {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.desc-line {
+  display: block;
+}
+
+/* =========================
+   FEATURE LIST POLISH
+========================= */
+
+.feature-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 30px;
+}
+
+.feature-list li {
+  margin-bottom: 14px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  line-height: 1.4;
+}
+
+/* Colored icons */
+.bullet-vuln { color: #ef4444; }
+.bullet-cve { color: #f59e0b; }
+.bullet-patch { color: #22c55e; }
+
+/* Glow effect */
+.feature-list i {
+  margin-top: 3px;
+  filter:
+    drop-shadow(0 0 4px currentColor)
+    drop-shadow(0 0 10px rgba(255,255,255,0.2));
+}
+
+/* =========================
+   BUTTON IMPROVEMENT
+========================= */
+
+button {
+  margin-top: 10px;
+  transition: 0.2s ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
