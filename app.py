@@ -32,7 +32,9 @@ if not firebase_admin._apps:
                 cred = credentials.Certificate(cred_dict)
             else:
                 cred = credentials.Certificate(firebase_key)
-            
+            if "private_key" in cred_dict:
+                cred_dict["private_key"] = cred_dict["private_key"].replace("\\n", "\n")
+                
             firebase_admin.initialize_app(cred)
             logger.info("Firebase Admin initialized successfully.")
     except Exception as e:
