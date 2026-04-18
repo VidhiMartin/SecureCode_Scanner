@@ -35,7 +35,7 @@
       </button>
     </form>
 
-    <div class="auth-footer">
+    <div id="recaptcha-container"></div> <div class="auth-footer">
       <p>New operative? <a href="/signup">Request Access</a></p>
     </div>
   </div>
@@ -54,6 +54,9 @@ const firebaseConfig = {
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 
+// Set Tenant ID for Multi-tenancy
+auth.tenantId = "myTenantId1"; 
+
 document.getElementById("loginForm").onsubmit = async (e) => {
   e.preventDefault();
   const btn = document.getElementById("submitBtn");
@@ -65,13 +68,45 @@ document.getElementById("loginForm").onsubmit = async (e) => {
 
   try {
     const userCred = await auth.signInWithEmailAndPassword(email, password);
-    // CRITICAL: Force refresh the token to ensure it's valid
     const token = await userCred.user.getIdToken(true);
-
     localStorage.setItem("token", token);
     window.location.href = "/scanner";
   } catch (err) {
-    alert("Authentication Failed: " + err.message);
+    if (err.code === 'auth/multi-factor-auth-required') {
+      // MFA Logic
+      const resolver = err.resolver;
+      const hints = resolver.hints;
+      
+      // Initialize invisible ReCAPTCHA
+      const recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+        'size': 'invisible'
+      });
+
+      const phoneAuthProvider = new firebase.auth.PhoneAuthProvider();
+      const phoneInfoOptions = {
+        multiFactorHint: hints[0],
+        session: resolver.session
+      };
+
+      try {
+        const verificationId = await phoneAuthProvider.verifyPhoneNumber(phoneInfoOptions, recaptchaVerifier);
+        const verificationCode = prompt("Enter the MFA security code sent to your phone:");
+        
+        if (verificationCode) {
+          const cred = firebase.auth.PhoneAuthProvider.credential(verificationId, verificationCode);
+          const multiFactorAssertion = firebase.auth.PhoneMultiFactorGenerator.assertion(cred);
+          const mfaUserCred = await resolver.resolveSignIn(multiFactorAssertion);
+          
+          const token = await mfaUserCred.user.getIdToken(true);
+          localStorage.setItem("token", token);
+          window.location.href = "/scanner";
+        }
+      } catch (mfaErr) {
+        alert("MFA Verification Failed: " + mfaErr.message);
+      }
+    } else {
+      alert("Authentication Failed: " + err.message);
+    }
     btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
     btn.disabled = false;
   }
