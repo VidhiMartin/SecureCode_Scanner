@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="/static/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* New styling for professional forgot password link */
         .forgot-password-container {
             text-align: right;
             margin-top: -10px;
@@ -20,7 +19,7 @@
             transition: color 0.3s ease;
         }
         .link-forgot:hover {
-            color: #007bff; /* Matches primary enterprise blue */
+            color: #007bff;
             text-decoration: underline;
         }
     </style>
@@ -54,6 +53,7 @@
         </form>
 
         <div id="recaptcha-container"></div>
+        
         <div class="auth-footer">
             <p>New operative? <a href="/signup">Request Access</a></p>
         </div>
@@ -72,19 +72,21 @@
     const auth = firebase.auth();
     auth.tenantId = "Enterprise-Test-avvoo";
 
-    // --- NEW: Forgot Password Logic ---
+    const finalizeLogin = async (user) => {
+        const token = await user.getIdToken(true);
+        localStorage.setItem("token", token);
+        window.location.href = "/scanner";
+    };
+
     document.getElementById("forgotPasswordBtn").onclick = async (e) => {
         e.preventDefault();
         const email = document.getElementById("email").value;
-
         if (!email) {
             alert("Please enter your operative email address first.");
             document.getElementById("email").focus();
             return;
         }
-
         try {
-            // Identity Platform will send a tenant-specific reset email
             await auth.sendPasswordResetEmail(email);
             alert("Security reset link dispatched to your email. Check your inbox.");
         } catch (err) {
@@ -92,7 +94,6 @@
         }
     };
 
-    // --- Existing Login Logic ---
     document.getElementById("loginForm").onsubmit = async (e) => {
         e.preventDefault();
         const btn = document.getElementById("submitBtn");
@@ -104,13 +105,44 @@
 
         try {
             const userCred = await auth.signInWithEmailAndPassword(email, password);
-            const token = await userCred.user.getIdToken(true);
-            localStorage.setItem("token", token);
-            window.location.href = "/scanner";
+            await finalizeLogin(userCred.user);
         } catch (err) {
-            alert("Access Denied: " + err.message);
-            btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
-            btn.disabled = false;
+            // NEW: Capture Multi-Factor Challenge
+            if (err.code === 'auth/multi-factor-auth-required') {
+                const resolver = err.resolver;
+                const hints = resolver.hints;
+                
+                // Initialize ReCaptcha for the SMS challenge
+                const recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { 'size': 'invisible' });
+                
+                const phoneInfoOptions = {
+                    multiFactorHint: hints[0],
+                    session: resolver.session
+                };
+                
+                try {
+                    const phoneAuthProvider = new firebase.auth.PhoneAuthProvider();
+                    const verificationId = await phoneAuthProvider.verifyPhoneNumber(phoneInfoOptions, recaptchaVerifier);
+                    
+                    const smsCode = prompt("SECURITY CHALLENGE: Enter the verification code sent to your registered device:");
+                    
+                    if (smsCode) {
+                        const cred = firebase.auth.PhoneAuthProvider.credential(verificationId, smsCode);
+                        const multiFactorAssertion = firebase.auth.PhoneMultiFactorGenerator.assertion(cred);
+                        const mfaUserCred = await resolver.resolveSignIn(multiFactorAssertion);
+                        await finalizeLogin(mfaUserCred.user);
+                    } else {
+                        throw new Error("MFA Code required for access.");
+                    }
+                } catch (mfaErr) {
+                    alert("MFA Failure: " + mfaErr.message);
+                    location.reload();
+                }
+            } else {
+                alert("Access Denied: " + err.message);
+                btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+                btn.disabled = false;
+            }
         }
     };
 </script>
