@@ -55,7 +55,7 @@ if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 
 // Set Tenant ID for Multi-tenancy
-auth.tenantId = "myTenantId1"; 
+auth.tenantId = "Enterprise-Test-avvoo"; 
 
 document.getElementById("loginForm").onsubmit = async (e) => {
   e.preventDefault();
