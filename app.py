@@ -29,7 +29,7 @@ limiter = Limiter(
 # Firebase Init (Vercel Fixed)
 # =========================
 firebase_key = os.getenv("FIREBASE_KEY")
-TENANT_ID = "myTenantId1" # Ensure this matches your frontend
+TENANT_ID = "Enterprise-Test-avvoo" # Ensure this matches your frontend
 
 if not firebase_admin._apps:
     try:
