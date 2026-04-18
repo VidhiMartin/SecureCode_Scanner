@@ -8,14 +8,14 @@ from utils import analyze_code
 import firebase_admin
 from firebase_admin import credentials, auth
 
-# Configure logging to help you debug in the terminal
+# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
 # =========================
-# Firebase Init
+# Firebase Init (Vercel Fixed)
 # =========================
 firebase_key = os.getenv("FIREBASE_KEY")
 
@@ -24,9 +24,11 @@ if not firebase_admin._apps:
         if not firebase_key:
             logger.error("FIREBASE_KEY environment variable is missing!")
         else:
-            # Handle both raw JSON strings and file paths
             if firebase_key.startswith('{'):
                 cred_dict = json.loads(firebase_key)
+                # CRITICAL: Fix Vercel's newline mangling in the private key
+                if "private_key" in cred_dict:
+                    cred_dict["private_key"] = cred_dict["private_key"].replace("\\n", "\n")
                 cred = credentials.Certificate(cred_dict)
             else:
                 cred = credentials.Certificate(firebase_key)
@@ -55,8 +57,11 @@ def sanitize_input(code):
     return code.replace("\x00", "")
 
 def get_current_user():
-    auth_header = request.headers.get("Authorization")
+    # Retrieve header (Vercel sometimes lowercases this to 'authorization')
+    auth_header = request.headers.get("Authorization") or request.headers.get("authorization")
+    
     if not auth_header or not auth_header.startswith("Bearer "):
+        logger.warning("No valid Bearer token in headers.")
         return None
 
     try:
@@ -100,10 +105,7 @@ def scan():
             return jsonify({"error": f"Language '{language}' not supported."}), 400
 
         code = sanitize_input(code)
-        
-        # This calls the updated analyze_code logic
         result = analyze_code(code, language)
-
         return jsonify(result)
 
     except Exception as e:
@@ -111,4 +113,4 @@ def scan():
         return jsonify({"error": "Internal Server Error", "details": str(e)}), 500
 
 if __name__ == "__main__":
-    app.run(debug=True) # Debug mode helps catch errors during development
+    app.run(debug=True)
