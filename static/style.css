@@ -339,3 +339,200 @@ button:hover {
 
 .auth-footer a { color: #58a6ff; text-decoration: none; }
 
+
+/* --- Global Reset & Core Styling --- */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box; /* Crucial Global Reset */
+}
+
+*, *:before, *:after {
+    box-sizing: inherit;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    color: white;
+}
+
+h1, .logo {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+}
+
+/* --- Redesigned Auth Body & Background --- */
+.auth-body {
+    background-color: #010409;
+    /* Primary deep background gradient */
+    background-image: radial-gradient(circle at center, #0d1117 0%, #010409 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px; /* Safety margin for small screens */
+    position: relative;
+    overflow: hidden;
+}
+
+/* 🟢 NEW: Enhanced Background Pattern (Circuit/Network effect) */
+.auth-body::before {
+    content: '';
+    position: absolute;
+    top: -100%;
+    left: -100%;
+    width: 300%;
+    height: 300%;
+    background-image: 
+        linear-gradient(rgba(56, 139, 253, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(56, 139, 253, 0.05) 1px, transparent 1px);
+    background-size: 50px 50px;
+    z-index: 0;
+    opacity: 0.5;
+    animation: network_drift 60s linear infinite;
+    transform: rotate(-15deg);
+}
+
+@keyframes network_drift {
+    0% { transform: rotate(-15deg) translate(0, 0); }
+    100% { transform: rotate(-15deg) translate(500px, 500px); }
+}
+
+/* --- Container & Card (Fixing Containment) --- */
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    z-index: 10; /* Above the background pattern */
+}
+
+.auth-card {
+    background: rgba(13, 17, 23, 0.8);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(56, 139, 253, 0.3);
+    border-radius: 12px;
+    width: 100%;
+    max-width: 440px; /* Precise constraint for bigger card */
+    padding: 2.5rem; /* Consistent internal spacing */
+    box-shadow: 
+        0 0 30px rgba(0, 0, 0, 0.5),
+        0 0 50px rgba(56, 139, 253, 0.1);
+    transition: box-shadow 0.3s ease;
+}
+
+/* --- Auth Header --- */
+.auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.auth-icon {
+    font-size: 3rem;
+    color: #58a6ff;
+    margin-bottom: 1rem;
+    text-shadow: 0 0 15px rgba(88, 166, 255, 0.5);
+}
+
+.logo {
+    color: #f0f6fc;
+    font-size: 2rem;
+    margin: 0 0 0.5rem 0;
+}
+
+.subtitle {
+    color: #8b949e;
+    font-size: 1rem;
+    margin: 0;
+}
+
+/* --- Input Groups (The Fix for Overflow) --- */
+.input-group {
+    position: relative;
+    margin-bottom: 1.25rem;
+    width: 100%;
+    display: flex; /* Helps containment */
+    align-items: center;
+}
+
+.input-group i {
+    position: absolute;
+    left: 15px;
+    color: #8b949e;
+    font-size: 1rem;
+    z-index: 5;
+}
+
+.input-group input {
+    width: 100%; /* Now stays inside because of border-box reset */
+    padding: 14px 14px 14px 45px; /* Consistent padding with space for icon */
+    background: #010409;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    color: #f0f6fc;
+    font-size: 1rem;
+    transition: 0.3s ease;
+}
+
+.input-group input:focus {
+    border-color: #58a6ff;
+    outline: none;
+    background: rgba(88, 166, 255, 0.05);
+    box-shadow: 0 0 10px rgba(88, 166, 255, 0.2);
+}
+
+/* Placeholder color consistency */
+.input-group input::placeholder {
+    color: #484f58;
+}
+
+/* --- Buttons --- */
+.btn-primary {
+    width: 100%;
+    padding: 14px;
+    background: #238636;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: 0.2s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-primary:hover {
+    background: #2ea043;
+    box-shadow: 0 0 15px rgba(46, 160, 67, 0.4);
+}
+
+.btn-primary:disabled {
+    background: #1c6b2e;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* --- Footer --- */
+.auth-footer {
+    margin-top: 1.75rem;
+    text-align: center;
+    color: #8b949e;
+    font-size: 0.9rem;
+}
+
+.auth-footer a {
+    color: #58a6ff;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.auth-footer a:hover {
+    text-decoration: underline;
+}
+
