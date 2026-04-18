@@ -1,116 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login | Secure Code Scanner</title>
-  <link rel="stylesheet" href="/static/style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <title>Login | Secure Code Scanner</title>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body class="auth-body">
-
-<div class="auth-container">
-  <div class="auth-card">
-    <div class="auth-header">
-      <div class="auth-icon">
-        <i class="fas fa-user-shield"></i>
-      </div>
-      <h1 class="logo">Secure Code Scanner</h1>
-      <p class="subtitle">Enter your credentials to access the vault</p>
+    <div class="auth-container">
+        <form id="loginForm" style="display:flex; flex-direction:column; max-width:400px; margin:auto; padding:50px;">
+            <h1>Sign In</h1>
+            <input type="email" id="email" placeholder="Email" required style="margin-bottom:10px; padding:10px;">
+            <input type="password" id="password" placeholder="Password" required style="margin-bottom:10px; padding:10px;">
+            <button type="submit" id="submitBtn" style="padding:10px; background:green; color:white;">Sign In</button>
+            <p><a href="/signup">Need an account? Sign up</a></p>
+        </form>
+        <div id="recaptcha-container"></div>
     </div>
 
-    <form id="loginForm">
-      <div class="input-group">
-        <i class="fas fa-envelope"></i>
-        <input type="email" id="email" required placeholder="Email Address">
-      </div>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyD9llGi3Rq4eTgOA4QLI2hGK00v-jx0bCs",
+            authDomain: "code-scanner-91d48.firebaseapp.com",
+            projectId: "code-scanner-91d48"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        auth.tenantId = "Enterprise-Test-avvoo";
 
-      <div class="input-group">
-        <i class="fas fa-lock"></i>
-        <input type="password" id="password" required placeholder="Password">
-      </div>
+        document.getElementById("loginForm").onsubmit = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            const btn = document.getElementById("submitBtn");
 
-      <button class="btn-primary" type="submit" id="submitBtn">
-        <i class="fas fa-sign-in-alt"></i> Sign In
-      </button>
-    </form>
+            btn.disabled = true;
+            btn.innerText = "Authenticating...";
 
-    <div id="recaptcha-container"></div> <div class="auth-footer">
-      <p>New operative? <a href="/signup">Request Access</a></p>
-    </div>
-  </div>
-</div>
-
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-
-<script>
-const firebaseConfig = {
-  apiKey: "AIzaSyD9llGi3Rq4eTgOA4QLI2hGK00v-jx0bCs",
-  authDomain: "code-scanner-91d48.firebaseapp.com",
-  projectId: "code-scanner-91d48"
-};
-
-if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-
-// Set Tenant ID for Multi-tenancy
-auth.tenantId = "Enterprise-Test-avvoo"; 
-
-document.getElementById("loginForm").onsubmit = async (e) => {
-  e.preventDefault();
-  const btn = document.getElementById("submitBtn");
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating...';
-  btn.disabled = true;
-
-  try {
-    const userCred = await auth.signInWithEmailAndPassword(email, password);
-    const token = await userCred.user.getIdToken(true);
-    localStorage.setItem("token", token);
-    window.location.href = "/scanner";
-  } catch (err) {
-    if (err.code === 'auth/multi-factor-auth-required') {
-      // MFA Logic
-      const resolver = err.resolver;
-      const hints = resolver.hints;
-      
-      // Initialize invisible ReCAPTCHA
-      const recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
-        'size': 'invisible'
-      });
-
-      const phoneAuthProvider = new firebase.auth.PhoneAuthProvider();
-      const phoneInfoOptions = {
-        multiFactorHint: hints[0],
-        session: resolver.session
-      };
-
-      try {
-        const verificationId = await phoneAuthProvider.verifyPhoneNumber(phoneInfoOptions, recaptchaVerifier);
-        const verificationCode = prompt("Enter the MFA security code sent to your phone:");
-        
-        if (verificationCode) {
-          const cred = firebase.auth.PhoneAuthProvider.credential(verificationId, verificationCode);
-          const multiFactorAssertion = firebase.auth.PhoneMultiFactorGenerator.assertion(cred);
-          const mfaUserCred = await resolver.resolveSignIn(multiFactorAssertion);
-          
-          const token = await mfaUserCred.user.getIdToken(true);
-          localStorage.setItem("token", token);
-          window.location.href = "/scanner";
-        }
-      } catch (mfaErr) {
-        alert("MFA Verification Failed: " + mfaErr.message);
-      }
-    } else {
-      alert("Authentication Failed: " + err.message);
-    }
-    btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
-    btn.disabled = false;
-  }
-};
-</script>
+            try {
+                const userCred = await auth.signInWithEmailAndPassword(email, password);
+                const token = await userCred.user.getIdToken();
+                localStorage.setItem("token", token);
+                window.location.href = "/scanner";
+            } catch (err) {
+                alert("Login Error: " + err.message);
+                btn.disabled = false;
+                btn.innerText = "Sign In";
+            }
+        };
+    </script>
 </body>
 </html>
