@@ -7,3 +7,4 @@ cryptography
 google-auth
 cachecontrol
 bleach
+flask-limiter
