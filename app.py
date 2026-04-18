@@ -16,21 +16,20 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 
 # =========================
-# Enterprise Rate Limiting (Fixed for Vercel)
+# Enterprise Rate Limiting
 # =========================
-# We remove the storage_uri="memory://" for better compatibility 
-# and use the 'fixed-window' strategy which is lighter for serverless.
 limiter = Limiter(
     key_func=get_remote_address,
     app=app,
     default_limits=["100 per hour"],
-    strategy="fixed-window" 
+    strategy="fixed-window"
 )
 
 # =========================
 # Firebase Init (Vercel Fixed)
 # =========================
 firebase_key = os.getenv("FIREBASE_KEY")
+TENANT_ID = "myTenantId1" # Ensure this matches your frontend
 
 if not firebase_admin._apps:
     try:
@@ -40,15 +39,13 @@ if not firebase_admin._apps:
             if firebase_key.strip().startswith('{'):
                 cred_dict = json.loads(firebase_key)
                 if "private_key" in cred_dict:
-                    # Fix Vercel's newline mangling
                     cred_dict["private_key"] = cred_dict["private_key"].replace("\\n", "\n")
                 cred = credentials.Certificate(cred_dict)
-                firebase_admin.initialize_app(cred)
-                logger.info("Firebase Admin initialized successfully.")
             else:
-                # Handle cases where path is provided instead of JSON string
                 cred = credentials.Certificate(firebase_key)
-                firebase_admin.initialize_app(cred)
+            
+            firebase_admin.initialize_app(cred)
+            logger.info("Firebase Admin initialized successfully.")
     except Exception as e:
         logger.error(f"Firebase Init Failed: {str(e)}")
 
@@ -79,7 +76,17 @@ def get_current_user():
         return None
     try:
         token = auth_header.split(" ")[1]
+        
+        # Verify with check_revoked=True for enterprise-grade session management
         decoded = auth.verify_id_token(token, check_revoked=True)
+        
+        # MULTI-TENANCY ENFORCEMENT
+        # Tokens generated under a tenant include a 'tenant' field in the 'firebase' claim
+        token_tenant = decoded.get('firebase', {}).get('tenant')
+        if token_tenant != TENANT_ID:
+            logger.warning(f"Tenant Isolation Violation: Received {token_tenant}, expected {TENANT_ID}")
+            return None
+            
         return decoded
     except Exception as e:
         logger.warning(f"Auth Shield: Token Rejected - {str(e)}")
