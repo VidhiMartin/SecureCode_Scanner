@@ -126,7 +126,7 @@
         };
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
-        auth.tenantId = "myTenantId1"; 
+        auth.tenantId = "Enterprise-Test-avvoo"; 
 
         // --- Authentication Guard ---
         if (!localStorage.getItem("token")) {
