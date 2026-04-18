@@ -77,7 +77,7 @@ def get_current_user():
         return None
     try:
         token = auth_header.split(" ")[1]
-        decoded = auth.verify_id_token(token, check_revoked=True)
+        decoded = auth.verify_id_token(token)
         
         # MULTI-TENANCY ENFORCEMENT
         token_tenant = decoded.get('firebase', {}).get('tenant')
