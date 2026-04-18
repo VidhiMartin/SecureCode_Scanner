@@ -16,17 +16,19 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 
 # =========================
-# Enterprise Rate Limiting
+# Enterprise Rate Limiting (Fixed for Vercel)
 # =========================
+# We remove the storage_uri="memory://" for better compatibility 
+# and use the 'fixed-window' strategy which is lighter for serverless.
 limiter = Limiter(
     key_func=get_remote_address,
     app=app,
     default_limits=["100 per hour"],
-    storage_uri="memory://",
+    strategy="fixed-window" 
 )
 
 # =========================
-# Firebase Init
+# Firebase Init (Vercel Fixed)
 # =========================
 firebase_key = os.getenv("FIREBASE_KEY")
 
@@ -35,18 +37,20 @@ if not firebase_admin._apps:
         if not firebase_key:
             logger.error("CRITICAL: FIREBASE_KEY missing.")
         else:
-            if firebase_key.startswith('{'):
+            if firebase_key.strip().startswith('{'):
                 cred_dict = json.loads(firebase_key)
                 if "private_key" in cred_dict:
+                    # Fix Vercel's newline mangling
                     cred_dict["private_key"] = cred_dict["private_key"].replace("\\n", "\n")
                 cred = credentials.Certificate(cred_dict)
+                firebase_admin.initialize_app(cred)
+                logger.info("Firebase Admin initialized successfully.")
             else:
+                # Handle cases where path is provided instead of JSON string
                 cred = credentials.Certificate(firebase_key)
-            
-            firebase_admin.initialize_app(cred)
-            logger.info("Firebase Admin initialized.")
+                firebase_admin.initialize_app(cred)
     except Exception as e:
-        logger.error(f"Firebase Init Failed: {e}")
+        logger.error(f"Firebase Init Failed: {str(e)}")
 
 # =========================
 # Security Settings
@@ -58,16 +62,12 @@ ALLOWED_LANGUAGES = {
 }
 
 def sanitize_input(code):
-    """Enterprise-grade input scrubbing."""
     if not code:
         return ""
     code = code.strip()
-    # 1. Size Check
     if len(code) > MAX_CODE_LENGTH:
         raise ValueError("Payload too large. Max 50KB.")
-    # 2. Null Byte Removal
     code = code.replace("\x00", "")
-    # 3. Line-length check (ReDoS / Buffer protection)
     for line in code.splitlines():
         if len(line) > 2000:
             raise ValueError("Extreme line length detected.")
@@ -79,11 +79,10 @@ def get_current_user():
         return None
     try:
         token = auth_header.split(" ")[1]
-        # Verify the ID token while checking for revocation
         decoded = auth.verify_id_token(token, check_revoked=True)
         return decoded
     except Exception as e:
-        logger.warning(f"Auth Shield: Token Rejected - {e}")
+        logger.warning(f"Auth Shield: Token Rejected - {str(e)}")
         return None
 
 # =========================
@@ -106,7 +105,7 @@ def signup_page():
     return render_template("signup.html")
 
 @app.route("/scan", methods=["POST"])
-@limiter.limit("10 per minute") # Throttling for potential API abuse
+@limiter.limit("10 per minute")
 def scan():
     user = get_current_user()
     if not user:
@@ -121,7 +120,6 @@ def scan():
 
         clean_code = sanitize_input(code)
         
-        # Enterprise Audit: Record the scan attempt (User ID and Language)
         logger.info(f"Scan initiated by {user.get('uid')} for {language}")
         
         result = analyze_code(clean_code, language)
@@ -131,7 +129,7 @@ def scan():
         return jsonify({"error": "Security Restriction", "details": str(ve)}), 403
     except Exception as e:
         logger.error(f"System Fault: {str(e)}")
-        return jsonify({"error": "Internal System Failure"}), 500
+        return jsonify({"error": "Internal System Failure", "details": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(debug=True)
