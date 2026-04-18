@@ -24,21 +24,20 @@
         <i class="fas fa-envelope"></i>
         <input type="email" id="email" required placeholder="Email Address">
       </div>
-
       <div class="input-group">
         <i class="fas fa-lock"></i>
         <input type="password" id="password" required placeholder="Create Password">
       </div>
-
       <div class="input-group">
         <i class="fas fa-check-double"></i>
         <input type="password" id="confirm-password" required placeholder="Confirm Password">
       </div>
-
       <button class="btn-primary" type="submit" id="submitBtn">
         <i class="fas fa-user-shield"></i> Initialize Account
       </button>
     </form>
+    
+    <div id="recaptcha-container"></div>
 
     <div class="auth-footer">
       <p>Existing operative? <a href="/login">Access Vault</a></p>
@@ -58,6 +57,7 @@ const firebaseConfig = {
 
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
+auth.tenantId = "myTenantId1";
 
 document.getElementById("signupForm").onsubmit = async (e) => {
   e.preventDefault();
@@ -75,8 +75,26 @@ document.getElementById("signupForm").onsubmit = async (e) => {
   btn.disabled = true;
 
   try {
-    await auth.createUserWithEmailAndPassword(email, password);
-    alert("Identity Created. Please log in to synchronize.");
+    const userCred = await auth.createUserWithEmailAndPassword(email, password);
+    
+    // Optional: Prompt for MFA Enrollment immediately
+    if (confirm("Account created! Would you like to enable SMS MFA now for enterprise security?")) {
+      const phoneNumber = prompt("Enter your phone number (e.g., +11234567890):");
+      if (phoneNumber) {
+        const recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { 'size': 'invisible' });
+        const session = await userCred.user.multiFactor.getSession();
+        const phoneInfoOptions = { phoneNumber: phoneNumber, session: session };
+        const phoneAuthProvider = new firebase.auth.PhoneAuthProvider();
+        const verificationId = await phoneAuthProvider.verifyPhoneNumber(phoneInfoOptions, recaptchaVerifier);
+        const code = prompt("Enter the verification code sent to " + phoneNumber);
+        const cred = firebase.auth.PhoneAuthProvider.credential(verificationId, code);
+        const multiFactorAssertion = firebase.auth.PhoneMultiFactorGenerator.assertion(cred);
+        await userCred.user.multiFactor.enroll(multiFactorAssertion, "Primary Phone");
+        alert("MFA Enrolled Successfully!");
+      }
+    }
+
+    alert("Identity Created. Redirecting to login...");
     window.location.href = "/login";
   } catch (err) {
     alert("Registration Failed: " + err.message);
