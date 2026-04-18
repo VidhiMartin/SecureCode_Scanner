@@ -1,146 +1,160 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>LLM-Powered Secure Code Scanner</title>
+    <meta charset="UTF-8">
+    <title>LLM-Powered Secure Code Scanner</title>
 
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"/>
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 
 <body>
 
-<!-- HERO -->
-<div class="hero">
+    <div class="hero">
+        <div class="container">
+            <div class="floating-shield">
+                <i class="fas fa-shield-halved"></i>
+            </div>
+
+            <div class="model-badge">
+                <i class="fas fa-microchip"></i> Powered by NVIDIA Nemotron-3 Super 120B
+            </div>
+
+            <h1 class="headline">Secure Code Scanner</h1>
+
+            <p class="subhead">
+                Enabling developers to adopt secure coding practices through automated, 
+                real-time threat intelligence and vulnerability assessments.
+            </p>
+
+            <ul class="feature-list">
+                <li>
+                    <i class="fas fa-bug bullet-vuln"></i>
+                    <span><strong>Vulnerability Detection:</strong> Scans for security weaknesses.</span>
+                </li>
+                <li>
+                    <i class="fas fa-shield-virus bullet-cve"></i>
+                    <span><strong>CVE/CWE Reference:</strong> Maps findings to known databases.</span>
+                </li>
+                <li>
+                    <i class="fas fa-wrench bullet-patch"></i>
+                    <span><strong>Patch & Mitigation:</strong> Actionable remediation guidance.</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
     <div class="container">
+        
+        <div class="scanner-card">
+            <form id="scanForm">
+                <div class="form-row">
+                    <label for="language"><i class="fas fa-code"></i> Programming Language</label>
+                    <select name="language" id="language">
+                        <option value="python">Python</option>
+                        <option value="javascript">JavaScript</option>
+                        <option value="java">Java</option>
+                        <option value="c">C</option>
+                        <option value="cpp">C++</option>
+                        <option value="csharp">C#</option>
+                        <option value="go">Go</option>
+                        <option value="rust">Rust</option>
+                        <option value="php">PHP</option>
+                        <option value="ruby">Ruby</option>
+                        <option value="typescript">TypeScript</option>
+                    </select>
+                </div>
 
-        <div class="floating-shield">
-    <i class="fas fa-shield-alt"></i>
+                <div class="form-row">
+                    <label for="code"><i class="fas fa-terminal"></i> Paste Source Code</label>
+                    <textarea name="code" id="code" rows="14" placeholder="Paste your code here for deep security analysis..."></textarea>
+                </div>
+
+                <button type="submit" id="submitBtn">
+                    <i class="fas fa-magnifying-glass"></i> Run Security Scan
+                </button>
+            </form>
+        </div>
+
+        <div class="result-card" id="result-card" style="display:none;">
+            <h2><i class="fas fa-clipboard-check"></i> Analysis Result</h2>
+            <pre><code id="result" class="language-json"></code></pre>
+        </div>
+
     </div>
 
-        <h1 class="headline">LLM-Powered Secure Code Scanner</h1>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
 
-        <p class="subhead">
-            <span class="model-line">
-                Powered by <strong>NVIDIA Nemotron-3 Super 120B</strong>.
-            </span>
-            <span class="desc-line">
-                Designed to enable developers to adopt secure coding practices from day one with minimal onboarding through automated, real-time threat intelligence and vulnerability assessments.
-            </span>
-        </p>
-
-        <!-- FEATURES -->
-        <ul class="feature-list">
-            <li>
-                <i class="fas fa-bug bullet-vuln"></i>
-                <span><strong>Vulnerability Detection:</strong> Scans source code for security weaknesses.</span>
-            </li>
-
-            <li>
-                <i class="fas fa-shield-virus bullet-cve"></i>
-                <span><strong>CVE/CWE Reference:</strong> Maps findings to known vulnerability databases.</span>
-            </li>
-
-            <li>
-                <i class="fas fa-wrench bullet-patch"></i>
-                <span><strong>Patch & Mitigation:</strong> Provides actionable remediation guidance.</span>
-            </li>
-        </ul>
-
-    </div>
-</div>
-
-<!-- SCANNER -->
-<div class="container">
-    <div class="scanner-card">
-        <form id="scanForm">
-
-            <div class="form-row">
-                <label for="language"><i class="fas fa-code"></i> Language</label>
-                <select name="language" id="language">
-                    <option>python</option>
-                    <option>javascript</option>
-                    <option>java</option>
-                    <option>c</option>
-                    <option>cpp</option>
-                    <option>csharp</option>
-                    <option>go</option>
-                    <option>rust</option>
-                    <option>php</option>
-                    <option>ruby</option>
-                    <option>typescript</option>
-                </select>
-            </div>
-
-            <div class="form-row">
-                <label for="code"><i class="fas fa-terminal"></i> Paste Source Code</label>
-                <textarea name="code" id="code" rows="14" placeholder="Paste your code here..."></textarea>
-            </div>
-
-            <button type="submit">
-                <i class="fas fa-magnifying-glass"></i> Scan Code
-            </button>
-
-        </form>
-    </div>
-</div>
-
-<!-- RESULT -->
-<div class="container">
-    <div class="result-card" id="result-card" style="display:none;">
-        <h2><i class="fas fa-clipboard-list"></i> Analysis Result</h2>
-        <pre><code id="result" class="language-json"></code></pre>
-    </div>
-</div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-
-<script>
-// 🔐 Require login
-if (!localStorage.getItem("token")) {
-    window.location.href = "/login";
-}
-
-// Validate input
-function isValidPrompt(code) {
-    return code && code.length >= 10 && code.length <= 20000;
-}
-
-document.getElementById("scanForm").onsubmit = async (e) => {
-    e.preventDefault();
-
-    const code = document.getElementById("code").value.trim();
-    const resultCard = document.getElementById("result-card");
-
-    if (!isValidPrompt(code)) {
-        alert("Provide valid code (10–20,000 characters).");
-        resultCard.style.display = "none";
-        return;
+    <script>
+    // 🔐 Check Authentication
+    if (!localStorage.getItem("token")) {
+        window.location.href = "/login";
     }
 
-    const form = new FormData(e.target);
-    const token = localStorage.getItem("token");
+    // 🛠 Simple Validation
+    function isValidPrompt(code) {
+        return code && code.length >= 10 && code.length <= 20000;
+    }
 
-    const res = await fetch("/scan", {
-        method: "POST",
-        headers: {
-            "Authorization": "Bearer " + token
-        },
-        body: form
-    });
+    // 🚀 Submit Handling
+    document.getElementById("scanForm").onsubmit = async (e) => {
+        e.preventDefault();
 
-    const data = await res.json();
+        const codeInput = document.getElementById("code");
+        const code = codeInput.value.trim();
+        const resultCard = document.getElementById("result-card");
+        const submitBtn = document.getElementById("submitBtn");
 
-    const codeBlock = document.getElementById("result");
-    codeBlock.textContent = JSON.stringify(data, null, 2);
-    Prism.highlightElement(codeBlock);
+        if (!isValidPrompt(code)) {
+            alert("Please provide valid code (between 10 and 20,000 characters).");
+            resultCard.style.display = "none";
+            return;
+        }
 
-    resultCard.style.display = "block";
-};
-</script>
+        // Loading State UI
+        const originalBtnHtml = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Analyzing Security...';
+        submitBtn.disabled = true;
+
+        const form = new FormData(e.target);
+        const token = localStorage.getItem("token");
+
+        try {
+            const res = await fetch("/scan", {
+                method: "POST",
+                headers: {
+                    "Authorization": "Bearer " + token
+                },
+                body: form
+            });
+
+            if (!res.ok) throw new Error("Server responded with an error.");
+
+            const data = await res.json();
+
+            // Render Results
+            const codeBlock = document.getElementById("result");
+            codeBlock.textContent = JSON.stringify(data, null, 2);
+            Prism.highlightElement(codeBlock);
+
+            // Show card and scroll into view
+            resultCard.style.display = "block";
+            resultCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+        } catch (error) {
+            alert("An error occurred during the scan: " + error.message);
+        } finally {
+            // Restore Button
+            submitBtn.innerHTML = originalBtnHtml;
+            submitBtn.disabled = false;
+        }
+    };
+    </script>
 
 </body>
 </html>
