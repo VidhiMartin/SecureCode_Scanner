@@ -3,20 +3,108 @@
 ========================= */
 body {
   margin: 0;
-  font-family: 'Inter', Arial, sans-serif; /* Modern font feel */
+  font-family: 'Inter', Arial, sans-serif;
   background: radial-gradient(circle at top, #0f172a 0%, #020617 100%);
   color: white;
   min-height: 100vh;
-  line-height: 1.6;
-}
-
-h1, h2, h3 {
-  margin: 0;
-  letter-spacing: -0.02em;
 }
 
 /* =========================
-   LAYOUT CONTAINER
+   HERO SECTION (Reordered)
+========================= */
+.hero {
+  text-align: center;
+  padding: 50px 20px 30px; /* Adjusted padding for top headline */
+}
+
+.headline {
+  font-size: 3rem;
+  font-weight: 800;
+  background: linear-gradient(to bottom, #ffffff, #94a3b8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 20px;
+}
+
+.floating-shield {
+  font-size: 100px;
+  color: #38bdf8;
+  margin: 20px 0;
+  display: inline-block;
+  animation: floatShield 4s ease-in-out infinite;
+  filter: drop-shadow(0 0 20px rgba(14, 165, 233, 0.5));
+}
+
+@keyframes floatShield {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
+}
+
+/* Professional Badge Placement */
+.model-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(14, 165, 233, 0.1);
+  border: 1px solid rgba(14, 165, 233, 0.3);
+  padding: 6px 16px;
+  border-radius: 50px;
+  font-size: 0.9rem;
+  color: #38bdf8;
+  margin-bottom: 25px;
+  backdrop-filter: blur(5px);
+}
+
+.subhead {
+  color: #94a3b8;
+  max-width: 650px;
+  margin: 0 auto 40px;
+  font-size: 1.1rem;
+}
+
+/* =========================
+   UNIFORM FEATURE CARDS
+========================= */
+.feature-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.feature-list li {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  
+  /* Fixing Inconsistent Sizes */
+  width: 100%;
+  max-width: 550px; /* Equal width for all cards */
+  min-height: 60px;  /* Ensures height consistency */
+  box-sizing: border-box;
+  
+  text-align: left;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 15px 25px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: transform 0.2s ease;
+}
+
+.feature-list li:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+.feature-list i {
+  font-size: 1.2rem;
+  flex-shrink: 0; /* Prevents icon from squishing */
+}
+
+/* =========================
+   CONTAINER & FORMS
 ========================= */
 .container {
   width: 95%;
@@ -24,140 +112,48 @@ h1, h2, h3 {
   margin: 0 auto;
 }
 
-/* =========================
-   HERO SECTION
-========================= */
-.hero {
-  text-align: center;
-  padding: 80px 20px 40px;
-}
-
-.floating-shield {
-  font-size: 110px; /* Bolder size as requested */
-  color: #38bdf8;
-  margin-bottom: 30px;
-  display: inline-block;
-  animation: floatShield 4s ease-in-out infinite;
-  filter: drop-shadow(0 0 20px rgba(14, 165, 233, 0.6));
-}
-
-@keyframes floatShield {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-15px) rotate(2deg); }
-}
-
-.headline {
-  font-size: 2.8rem;
-  font-weight: 800;
-  background: linear-gradient(to bottom, #ffffff, #94a3b8);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin-bottom: 15px;
-}
-
-.subhead {
-  color: #94a3b8;
-  max-width: 650px;
-  margin: 0 auto 30px;
-}
-
-.model-badge {
-  display: inline-block;
-  background: rgba(14, 165, 233, 0.1);
-  border: 1px solid rgba(14, 165, 233, 0.3);
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  color: #38bdf8;
-  margin-bottom: 15px;
-}
-
-/* =========================
-   FEATURE LIST (Centered)
-========================= */
-.feature-list {
-  list-style: none;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center; /* Centering the container */
-  gap: 15px;
-}
-
-.feature-list li {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  width: 100%;
-  max-width: 450px; /* Constrains width so they look neat centered */
-  text-align: left;
-  background: rgba(255, 255, 255, 0.03);
-  padding: 10px 20px;
-  border-radius: 50px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.feature-list i {
-  font-size: 1.1rem;
-  width: 25px;
-}
-
-.bullet-vuln { color: #ef4444; }
-.bullet-cve { color: #f59e0b; }
-.bullet-patch { color: #22c55e; }
-
-/* =========================
-   CARDS (Scanner & Result)
-========================= */
 .scanner-card, .result-card {
-  background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(12px);
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(15px);
   padding: 40px;
   border-radius: 16px;
-  margin: 20px 0 60px; /* Consistent margin */
+  margin: 0 0 50px;
   border: 1px solid #334155;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
 }
 
-.form-row {
-  margin-bottom: 25px;
-}
+.form-row { margin-bottom: 25px; }
 
 label {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 10px;
-  color: #cbd5e1;
+  margin-bottom: 12px;
+  color: #94a3b8;
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 1px;
 }
 
 textarea, select {
   width: 100%;
-  box-sizing: border-box; /* Fixes width inconsistency */
+  box-sizing: border-box;
   padding: 15px;
   border-radius: 10px;
   border: 1px solid #334155;
   background: #020617;
   color: white;
-  font-family: 'Monaco', 'Consolas', monospace;
-  font-size: 14px;
+  font-family: 'Consolas', monospace;
   transition: all 0.3s ease;
 }
 
-textarea:focus, select:focus {
+textarea:focus {
   outline: none;
   border-color: #0ea5e9;
   box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.15);
-  background: #070c1b;
 }
 
-/* =========================
-   BUTTONS
-========================= */
 button {
   width: 100%;
   padding: 16px;
@@ -166,38 +162,15 @@ button {
   border-radius: 10px;
   color: white;
   font-weight: 700;
-  font-size: 1rem;
   cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  transition: transform 0.2s, box-shadow 0.2s;
-  box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
+  transition: all 0.2s ease;
 }
 
 button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(14, 165, 233, 0.5);
+  box-shadow: 0 5px 15px rgba(14, 165, 233, 0.4);
 }
 
-button:active {
-  transform: translateY(0);
-}
-
-/* =========================
-   RESULT POLISH
-========================= */
-.result-card h2 {
-  font-size: 1.4rem;
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: #38bdf8;
-}
-
-pre {
-  margin: 0;
-  border-radius: 8px !important;
-}
+.bullet-vuln { color: #ef4444; }
+.bullet-cve { color: #f59e0b; }
+.bullet-patch { color: #22c55e; }
