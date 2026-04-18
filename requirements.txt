@@ -6,3 +6,4 @@ python-dotenv
 cryptography
 google-auth
 cachecontrol
+bleach
