@@ -67,29 +67,39 @@ a {
 ========================= */
 .scanner-card {
   background: #0f172a;
-  padding: 20px;
-  border-radius: 10px;
-  margin-top: 20px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  padding: 30px;
+  border-radius: 12px;
+  margin: 40px 0;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+  border: 1px solid #334155;
 }
 
 .form-row {
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 }
 
 label {
   display: block;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   color: #94a3b8;
+  font-weight: 500;
 }
 
 textarea, select {
   width: 100%;
-  padding: 10px;
-  border-radius: 6px;
-  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #334155;
   background: #020617;
   color: white;
+  font-size: 14px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+textarea:focus, select:focus {
+  outline: none;
+  border-color: #0ea5e9;
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
 }
 
 /* =========================
@@ -115,9 +125,11 @@ button:hover {
 ========================= */
 .result-card {
   background: #0f172a;
-  padding: 20px;
-  border-radius: 10px;
-  margin-top: 20px;
+  padding: 30px;
+  border-radius: 12px;
+  margin: 40px 0;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+  border: 1px solid #334155;
 }
 
 /* =========================
@@ -247,21 +259,21 @@ button:hover {
 ========================= */
 
 .floating-shield {
-  font-size: 60px;
+  font-size: 80px;
   color: #38bdf8;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
 
   animation: floatShield 3s ease-in-out infinite;
 
   filter:
-    drop-shadow(0 0 10px #38bdf8)
-    drop-shadow(0 0 20px rgba(56,189,248,0.6));
+    drop-shadow(0 0 15px #38bdf8)
+    drop-shadow(0 0 30px rgba(56,189,248,0.7));
 }
 
 @keyframes floatShield {
-  0%   { transform: translateY(0px); }
-  50%  { transform: translateY(-12px); }
-  100% { transform: translateY(0px); }
+  0%   { transform: translateY(0px) scale(1); }
+  50%  { transform: translateY(-20px) scale(1.05); }
+  100% { transform: translateY(0px) scale(1); }
 }
 
 /* =========================
@@ -303,7 +315,7 @@ button:hover {
 .feature-list li {
   margin-bottom: 14px;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 12px;
   line-height: 1.4;
 }
@@ -326,8 +338,8 @@ button:hover {
 ========================= */
 
 button {
-  margin-top: 10px;
-  transition: 0.2s ease;
+  margin-top: 20px;
+  transition: all 0.2s ease;
 }
 
 button:hover {
