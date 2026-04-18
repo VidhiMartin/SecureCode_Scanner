@@ -29,7 +29,7 @@ limiter = Limiter(
 # Firebase Init (Vercel Fixed)
 # =========================
 firebase_key = os.getenv("FIREBASE_KEY")
-TENANT_ID = "Enterprise-Test-avvoo" 
+TENANT_ID = "Enterprise-Test-avvoo"
 
 if not firebase_admin._apps:
     try:
@@ -71,8 +71,8 @@ def sanitize_input(code):
     return code
 
 def get_current_user():
-    # Fix: Ensure case-insensitive header check
-    auth_header = request.headers.get("Authorization")
+    # Fix: Ensure case-insensitive header access
+    auth_header = request.headers.get("Authorization") or request.headers.get("authorization")
     if not auth_header or not auth_header.startswith("Bearer "):
         return None
     try:
@@ -82,7 +82,7 @@ def get_current_user():
         # MULTI-TENANCY ENFORCEMENT
         token_tenant = decoded.get('firebase', {}).get('tenant')
         if token_tenant != TENANT_ID:
-            logger.warning(f"Tenant Isolation Violation: Received {token_tenant}")
+            logger.warning(f"Tenant Isolation Violation: Received {token_tenant}, expected {TENANT_ID}")
             return None
             
         return decoded
@@ -117,15 +117,14 @@ def scan():
         return jsonify({"error": "Unauthorized Access Detected"}), 401
 
     try:
-        # Use request.form for standard FormData or request.json for JSON
         language = request.form.get("language", "").lower()
         code = request.form.get("code", "")
 
-        if not code or language not in ALLOWED_LANGUAGES:
-            return jsonify({"error": "Invalid Input or Unsupported Language"}), 400
+        if language not in ALLOWED_LANGUAGES:
+            return jsonify({"error": "Unsupported Language Profile"}), 400
 
         clean_code = sanitize_input(code)
-        logger.info(f"Scan initiated by {user.get('uid')}")
+        logger.info(f"Scan initiated by {user.get('uid')} for {language}")
         
         result = analyze_code(clean_code, language)
         return jsonify(result)
@@ -134,7 +133,7 @@ def scan():
         return jsonify({"error": "Security Restriction", "details": str(ve)}), 403
     except Exception as e:
         logger.error(f"System Fault: {str(e)}")
-        return jsonify({"error": "Internal System Failure"}), 500
+        return jsonify({"error": "Internal System Failure", "details": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(debug=False)
