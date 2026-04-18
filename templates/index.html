@@ -153,59 +153,52 @@
         const resultCard = document.getElementById("result-card");
 
         scanForm.onsubmit = async (e) => {
-            e.preventDefault();
-            const codeInput = document.getElementById("code");
-            const code = codeInput.value.trim();
+    e.preventDefault();
+    
+    // FIX 1: Get user directly from Firebase state
+    const user = auth.currentUser;
+    if (!user) {
+        window.location.href = "/login";
+        return;
+    }
 
-            if (code.length < 10) {
-                alert("The code provided is too short for a reliable audit.");
-                return;
-            }
+    const originalBtnText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Audit in Progress...';
+    submitBtn.disabled = true;
 
-            const originalBtnText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Audit in Progress...';
-            submitBtn.disabled = true;
+    try {
+        // FIX 2: Force a fresh token directly from the source
+        const token = await user.getIdToken(true); 
+        const formData = new FormData(scanForm);
 
-            try {
-                // Fetch the latest token to ensure it hasn't expired
-                const token = localStorage.getItem("token");
-                const formData = new FormData(scanForm);
+        const response = await fetch("/scan", {
+            method: "POST",
+            headers: { 
+                "Authorization": "Bearer " + token 
+            },
+            body: formData
+        });
 
-                const response = await fetch("/scan", {
-                    method: "POST",
-                    headers: { 
-                        "Authorization": "Bearer " + token 
-                    },
-                    body: formData
-                });
+        if (response.status === 401) {
+            alert("Security Clearance Rejected. Please re-authenticate.");
+            window.location.href = "/login";
+            return;
+        }
 
-                if (response.status === 401) {
-                    alert("Your session has expired or is unauthorized. Redirecting to login...");
-                    localStorage.removeItem("token");
-                    window.location.href = "/login";
-                    return;
-                }
+        const data = await response.json();
+        document.getElementById("result").textContent = JSON.stringify(data, null, 2);
+        Prism.highlightElement(document.getElementById("result"));
+        
+        resultCard.style.display = "block";
+        resultCard.scrollIntoView({ behavior: 'smooth' });
 
-                if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
-
-                const data = await response.json();
-                const codeBlock = document.getElementById("result");
-                
-                // Display and highlight the result
-                codeBlock.textContent = JSON.stringify(data, null, 2);
-                Prism.highlightElement(codeBlock);
-                
-                resultCard.style.display = "block";
-                resultCard.scrollIntoView({ behavior: 'smooth' });
-
-            } catch (err) {
-                console.error("Scanner Failure:", err);
-                alert("Scan Failed: " + err.message);
-            } finally {
-                submitBtn.innerHTML = originalBtnText;
-                submitBtn.disabled = false;
-            }
-        };
+    } catch (err) {
+        alert("Scan Failed: " + err.message);
+    } finally {
+        submitBtn.innerHTML = originalBtnText;
+        submitBtn.disabled = false;
+    }
+};
     </script>
 </body>
 </html>
