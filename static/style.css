@@ -3,345 +3,201 @@
 ========================= */
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background: #020617;
+  font-family: 'Inter', Arial, sans-serif; /* Modern font feel */
+  background: radial-gradient(circle at top, #0f172a 0%, #020617 100%);
   color: white;
+  min-height: 100vh;
+  line-height: 1.6;
 }
 
 h1, h2, h3 {
   margin: 0;
-}
-
-a {
-  color: #38bdf8;
-  text-decoration: none;
-}
-
-/* =========================
-   HERO (INDEX PAGE)
-========================= */
-.hero {
-  text-align: center;
-  padding: 60px 20px 30px;
-}
-
-.headline {
-  font-size: 2.2rem;
-  margin-bottom: 10px;
-}
-
-.subhead {
-  color: #94a3b8;
-  max-width: 800px;
-  margin: auto;
-  line-height: 1.5;
-}
-
-/* =========================
-   FEATURES
-========================= */
-.feature-list {
-  list-style: none;
-  padding: 0;
-  margin-top: 25px;
-}
-
-.feature-list li {
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  letter-spacing: -0.02em;
 }
 
 /* =========================
    LAYOUT CONTAINER
 ========================= */
 .container {
-  width: 90%;
-  max-width: 900px;
-  margin: auto;
+  width: 95%;
+  max-width: 850px;
+  margin: 0 auto;
 }
 
 /* =========================
-   SCANNER CARD
+   HERO SECTION
 ========================= */
-.scanner-card {
-  background: #0f172a;
-  padding: 30px;
-  border-radius: 12px;
-  margin: 40px 0;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+.hero {
+  text-align: center;
+  padding: 80px 20px 40px;
+}
+
+.floating-shield {
+  font-size: 110px; /* Bolder size as requested */
+  color: #38bdf8;
+  margin-bottom: 30px;
+  display: inline-block;
+  animation: floatShield 4s ease-in-out infinite;
+  filter: drop-shadow(0 0 20px rgba(14, 165, 233, 0.6));
+}
+
+@keyframes floatShield {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-15px) rotate(2deg); }
+}
+
+.headline {
+  font-size: 2.8rem;
+  font-weight: 800;
+  background: linear-gradient(to bottom, #ffffff, #94a3b8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 15px;
+}
+
+.subhead {
+  color: #94a3b8;
+  max-width: 650px;
+  margin: 0 auto 30px;
+}
+
+.model-badge {
+  display: inline-block;
+  background: rgba(14, 165, 233, 0.1);
+  border: 1px solid rgba(14, 165, 233, 0.3);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  color: #38bdf8;
+  margin-bottom: 15px;
+}
+
+/* =========================
+   FEATURE LIST (Centered)
+========================= */
+.feature-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centering the container */
+  gap: 15px;
+}
+
+.feature-list li {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  width: 100%;
+  max-width: 450px; /* Constrains width so they look neat centered */
+  text-align: left;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 10px 20px;
+  border-radius: 50px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.feature-list i {
+  font-size: 1.1rem;
+  width: 25px;
+}
+
+.bullet-vuln { color: #ef4444; }
+.bullet-cve { color: #f59e0b; }
+.bullet-patch { color: #22c55e; }
+
+/* =========================
+   CARDS (Scanner & Result)
+========================= */
+.scanner-card, .result-card {
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(12px);
+  padding: 40px;
+  border-radius: 16px;
+  margin: 20px 0 60px; /* Consistent margin */
   border: 1px solid #334155;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
 }
 
 .form-row {
-  margin-bottom: 20px;
+  margin-bottom: 25px;
 }
 
 label {
-  display: block;
-  margin-bottom: 8px;
-  color: #94a3b8;
-  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  color: #cbd5e1;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 textarea, select {
   width: 100%;
-  padding: 12px;
-  border-radius: 8px;
+  box-sizing: border-box; /* Fixes width inconsistency */
+  padding: 15px;
+  border-radius: 10px;
   border: 1px solid #334155;
   background: #020617;
   color: white;
+  font-family: 'Monaco', 'Consolas', monospace;
   font-size: 14px;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: all 0.3s ease;
 }
 
 textarea:focus, select:focus {
   outline: none;
   border-color: #0ea5e9;
-  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+  box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.15);
+  background: #070c1b;
 }
 
 /* =========================
    BUTTONS
 ========================= */
-button, .btn-primary {
+button {
   width: 100%;
-  padding: 10px;
-  background: #0ea5e9;
+  padding: 16px;
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
   border: none;
-  border-radius: 6px;
+  border-radius: 10px;
   color: white;
+  font-weight: 700;
+  font-size: 1rem;
   cursor: pointer;
-  transition: 0.2s;
-}
-
-button:hover {
-  background: #0284c7;
-}
-
-/* =========================
-   RESULT CARD
-========================= */
-.result-card {
-  background: #0f172a;
-  padding: 30px;
-  border-radius: 12px;
-  margin: 40px 0;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-  border: 1px solid #334155;
-}
-
-/* =========================
-   AUTH (LOGIN / SIGNUP)
-========================= */
-.auth-body {
-  background: #020617;
-}
-
-.auth-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  position: relative;
-  z-index: 1;
-}
-
-.auth-card {
-  background: rgba(15, 23, 42, 0.9);
-  padding: 30px;
-  border-radius: 12px;
-  width: 320px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.6);
-  backdrop-filter: blur(10px);
-}
-
-.logo {
-  text-align: center;
-  margin-bottom: 10px;
-}
-
-.subtitle {
-  text-align: center;
-  margin-bottom: 20px;
-  color: #94a3b8;
-}
-
-.input-group {
-  margin-bottom: 15px;
-}
-
-.input-group input {
-  width: 100%;
-  padding: 10px;
-  border-radius: 6px;
-  border: none;
-  outline: none;
-  background: #0f172a;
-  color: white;
-}
-
-.switch {
-  text-align: center;
-  margin-top: 15px;
-}
-
-/* =========================
-   🔵 GLOWING SHIELD BACKGROUND
-========================= */
-.bg-shield {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(1.8);
-  z-index: -1; /* ALWAYS behind UI */
-  pointer-events: none;
-}
-
-/* SVG */
-.bg-shield svg {
-  width: 700px;
-  height: 700px;
-}
-
-/* Shield body */
-.shield-body {
-  fill: #020617;
-  stroke: #0ea5e9;
-  stroke-width: 4;
-  filter: drop-shadow(0 0 20px rgba(14,165,233,0.25));
-}
-
-/* Cracks */
-.crack {
-  stroke: #38bdf8;
-  stroke-width: 2;
-  fill: none;
-  stroke-linecap: round;
-
-  filter:
-    drop-shadow(0 0 6px #38bdf8)
-    drop-shadow(0 0 12px #0ea5e9)
-    drop-shadow(0 0 25px rgba(56,189,248,0.5));
-}
-
-/* Light leaking glow */
-.shield-glow {
-  position: absolute;
-  width: 600px;
-  height: 600px;
-
-  background: radial-gradient(circle,
-    rgba(56,189,248,0.4) 0%,
-    rgba(14,165,233,0.25) 30%,
-    rgba(0,0,0,0) 70%
-  );
-
-  filter: blur(50px);
-  transform: translate(40px, 70px);
-  opacity: 0.8;
-}
-
-/* Subtle animation */
-@keyframes glowPulse {
-  0% { opacity: 0.5; }
-  50% { opacity: 0.9; }
-  100% { opacity: 0.5; }
-}
-
-.shield-glow {
-  animation: glowPulse 4s ease-in-out infinite;
-}
-
-/* =========================
-   HERO SHIELD ANIMATION
-========================= */
-
-.floating-shield {
-  font-size: 80px;
-  color: #38bdf8;
-  margin-bottom: 25px;
-
-  animation: floatShield 3s ease-in-out infinite;
-
-  filter:
-    drop-shadow(0 0 15px #38bdf8)
-    drop-shadow(0 0 30px rgba(56,189,248,0.7));
-}
-
-@keyframes floatShield {
-  0%   { transform: translateY(0px) scale(1); }
-  50%  { transform: translateY(-20px) scale(1.05); }
-  100% { transform: translateY(0px) scale(1); }
-}
-
-/* =========================
-   TEXT POLISH
-========================= */
-
-.headline {
-  font-size: 2.4rem;
-  margin-bottom: 12px;
-  letter-spacing: 0.5px;
-}
-
-.subhead {
-  color: #94a3b8;
-  max-width: 800px;
-  margin: auto;
-  line-height: 1.6;
-}
-
-.model-line {
-  display: block;
-  margin-bottom: 6px;
-}
-
-.desc-line {
-  display: block;
-}
-
-/* =========================
-   FEATURE LIST POLISH
-========================= */
-
-.feature-list {
-  list-style: none;
-  padding: 0;
-  margin-top: 30px;
-}
-
-.feature-list li {
-  margin-bottom: 14px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  line-height: 1.4;
-}
-
-/* Colored icons */
-.bullet-vuln { color: #ef4444; }
-.bullet-cve { color: #f59e0b; }
-.bullet-patch { color: #22c55e; }
-
-/* Glow effect */
-.feature-list i {
-  margin-top: 3px;
-  filter:
-    drop-shadow(0 0 4px currentColor)
-    drop-shadow(0 0 10px rgba(255,255,255,0.2));
-}
-
-/* =========================
-   BUTTON IMPROVEMENT
-========================= */
-
-button {
-  margin-top: 20px;
-  transition: all 0.2s ease;
+  gap: 10px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
 }
 
 button:hover {
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(14, 165, 233, 0.5);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+/* =========================
+   RESULT POLISH
+========================= */
+.result-card h2 {
+  font-size: 1.4rem;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #38bdf8;
+}
+
+pre {
+  margin: 0;
+  border-radius: 8px !important;
 }
