@@ -114,5 +114,20 @@ def scan():
         logger.error(f"Scan error: {str(e)}")
         return jsonify({"error": "Internal Server Error", "details": str(e)}), 500
 
+
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=["200 per day", "50 per hour"],
+    storage_uri="memory://",
+)
+
+@app.route("/login", methods=["POST"])
+@limiter.limit("5 per minute") # Specific limit for bruteforce protection
+def login():
+
 if __name__ == "__main__":
     app.run(debug=True)
