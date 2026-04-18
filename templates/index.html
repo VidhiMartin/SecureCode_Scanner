@@ -12,7 +12,6 @@
     
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        /* Floating Logout Button Styling */
         .nav-header {
             position: absolute;
             top: 20px;
@@ -51,23 +50,18 @@
     <div class="hero">
         <div class="container">
             <h1 class="headline">Secure Code Scanner</h1>
-
             <div class="floating-shield">
                 <i class="fas fa-shield-halved"></i>
             </div>
-
             <br>
-
             <div class="model-badge">
                 <i class="fas fa-microchip"></i> 
                 <span>Powered by NVIDIA Nemotron-3 Super 120B</span>
             </div>
-
             <p class="subhead">
                 Enterprise-grade code security auditing powered by advanced LLM reasoning. 
                 Secure Code Scanner automates vulnerability detection and threat intelligence across 10+ programming languages.
             </p>
-
             <div class="feature-grid">
                 <div class="feature-item">
                     <i class="fas fa-bug bullet-vuln"></i>
@@ -121,7 +115,19 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+
     <script>
+        const firebaseConfig = {
+          apiKey: "AIzaSyD9llGi3Rq4eTgOA4QLI2hGK00v-jx0bCs",
+          authDomain: "code-scanner-91d48.firebaseapp.com",
+          projectId: "code-scanner-91d48"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        auth.tenantId = "myTenantId1"; 
+
         // --- Authentication Guard ---
         if (!localStorage.getItem("token")) {
             window.location.href = "/login";
@@ -149,7 +155,6 @@
                 return;
             }
 
-            // UI Loading State
             const originalBtnText = submitBtn.innerHTML;
             submitBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Audit in Progress...';
             submitBtn.disabled = true;
@@ -164,7 +169,6 @@
                     body: form
                 });
 
-                // Handle session expiry (401 from server)
                 if (response.status === 401) {
                     alert("Your session has expired. Redirecting to login...");
                     localStorage.removeItem("token");
@@ -175,8 +179,6 @@
                 if (!response.ok) throw new Error("Server communication error.");
 
                 const data = await response.json();
-                
-                // Display and Highlight
                 const codeBlock = document.getElementById("result");
                 codeBlock.textContent = JSON.stringify(data, null, 2);
                 Prism.highlightElement(codeBlock);
