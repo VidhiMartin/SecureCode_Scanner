@@ -2,3 +2,5 @@ flask
 requests
 gunicorn
 firebase-admin
+python-dotenv
+cryptography
