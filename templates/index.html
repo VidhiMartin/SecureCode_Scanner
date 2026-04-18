@@ -2,216 +2,22 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>SecureScan AI | LLM Code Analysis</title>
+    <title>SECURESCAN AI | Advanced LLM Code Auditor</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"/>
     
-    <style>
-        /* =========================
-           GLOBAL BASE
-        ========================= */
-        body {
-            margin: 0;
-            font-family: 'Inter', sans-serif;
-            background: radial-gradient(circle at top, #0f172a 0%, #020617 100%);
-            color: white;
-            min-height: 100vh;
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
-
-        .container {
-            width: 95%;
-            max-width: 850px;
-            margin: 0 auto;
-        }
-
-        /* =========================
-           HERO SECTION
-        ========================= */
-        .hero {
-            text-align: center;
-            padding: 60px 20px 40px;
-        }
-
-        .headline {
-            font-size: 3.2rem;
-            font-weight: 800;
-            background: linear-gradient(to bottom, #ffffff, #94a3b8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
-        }
-
-        .floating-shield {
-            font-size: 100px;
-            color: #38bdf8;
-            margin: 20px 0;
-            display: inline-block;
-            animation: floatShield 4s ease-in-out infinite;
-            filter: drop-shadow(0 0 25px rgba(14, 165, 233, 0.4));
-        }
-
-        @keyframes floatShield {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-15px); }
-        }
-
-        .model-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            background: rgba(14, 165, 233, 0.1);
-            border: 1px solid rgba(14, 165, 233, 0.3);
-            padding: 8px 20px;
-            border-radius: 50px;
-            font-size: 0.9rem;
-            color: #38bdf8;
-            margin-bottom: 30px;
-            backdrop-filter: blur(5px);
-        }
-
-        .subhead {
-            color: #94a3b8;
-            max-width: 650px;
-            margin: 0 auto 40px;
-            font-size: 1.1rem;
-        }
-
-        /* =========================
-           UNIFORM FEATURE CARDS
-        ========================= */
-        .feature-list {
-            list-style: none;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .feature-list li {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            width: 100%;
-            max-width: 550px; 
-            /* Fixed height and box-sizing ensures all cards are identical */
-            min-height: 80px;
-            box-sizing: border-box;
-            background: rgba(255, 255, 255, 0.03);
-            padding: 15px 25px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            transition: all 0.3s ease;
-        }
-
-        .feature-list li:hover {
-            background: rgba(255, 255, 255, 0.06);
-            border-color: rgba(56, 189, 248, 0.4);
-            transform: scale(1.02);
-        }
-
-        .feature-list i {
-            font-size: 1.4rem;
-            flex-shrink: 0;
-        }
-
-        .bullet-vuln { color: #ef4444; }
-        .bullet-cve { color: #f59e0b; }
-        .bullet-patch { color: #22c55e; }
-
-        /* =========================
-           SCANNER & RESULT CARDS
-        ========================= */
-        .scanner-card, .result-card {
-            background: rgba(15, 23, 42, 0.7);
-            backdrop-filter: blur(15px);
-            padding: 40px;
-            border-radius: 16px;
-            margin-bottom: 50px;
-            border: 1px solid #334155;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
-        }
-
-        .form-row { margin-bottom: 25px; }
-
-        label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 12px;
-            color: #94a3b8;
-            font-weight: 600;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 1.2px;
-        }
-
-        textarea, select {
-            width: 100%;
-            box-sizing: border-box;
-            padding: 15px;
-            border-radius: 10px;
-            border: 1px solid #334155;
-            background: #020617;
-            color: white;
-            font-family: 'Consolas', 'Monaco', monospace;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
-        textarea:focus, select:focus {
-            outline: none;
-            border-color: #0ea5e9;
-            box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.15);
-        }
-
-        button {
-            width: 100%;
-            padding: 18px;
-            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
-            border: none;
-            border-radius: 10px;
-            color: white;
-            font-weight: 700;
-            font-size: 1rem;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            transition: all 0.3s ease;
-        }
-
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(14, 165, 233, 0.4);
-        }
-
-        button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .result-card h2 {
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-            color: #38bdf8;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 
 <body>
 
     <div class="hero">
         <div class="container">
-            <h1 class="headline">Secure Code Scanner</h1>
+            <h1 class="headline">SecureScan AI</h1>
 
             <div class="floating-shield">
                 <i class="fas fa-shield-halved"></i>
@@ -221,71 +27,69 @@
 
             <div class="model-badge">
                 <i class="fas fa-microchip"></i> 
-                <span>AI Engine: <strong>NVIDIA Nemotron-3 Super 120B</strong></span>
+                <span>Neural Core: NVIDIA Nemotron-3 Super 120B</span>
             </div>
 
             <p class="subhead">
-                Adopt secure coding practices with real-time threat intelligence 
-                and automated vulnerability assessments.
+                Enterprise-grade security auditing powered by advanced LLM reasoning. 
+                Perform deep vulnerability inspection on 10+ languages.
             </p>
 
-            <ul class="feature-list">
-                <li>
+            <div class="feature-grid">
+                <div class="feature-item">
                     <i class="fas fa-bug bullet-vuln"></i>
-                    <span><strong>Vulnerability Detection:</strong> Identify critical security weaknesses and logic flaws in real-time.</span>
-                </li>
-                <li>
-                    <i class="fas fa-shield-virus bullet-cve"></i>
-                    <span><strong>CVE/CWE Reference:</strong> Accurate mapping to global vulnerability databases and standards.</span>
-                </li>
-                <li>
+                    <span><strong>Vulnerability Audit</strong><br>Real-time logic & flaw detection.</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-database bullet-cve"></i>
+                    <span><strong>CWE Intelligence</strong><br>Global database cross-referencing.</span>
+                </div>
+                <div class="feature-item">
                     <i class="fas fa-wrench bullet-patch"></i>
-                    <span><strong>Patch & Mitigation:</strong> Receive actionable, step-by-step guidance to secure your code.</span>
-                </li>
-            </ul>
+                    <span><strong>Auto-Remediation</strong><br>Actionable secure-code patching.</span>
+                </div>
+            </div>
         </div>
     </div>
 
     <div class="container">
         <div class="scanner-card">
             <form id="scanForm">
-                <div class="form-row">
-                    <label for="language"><i class="fas fa-code"></i> Programming Language</label>
-                    <select name="language" id="language">
-                        <option value="python">Python</option>
-                        <option value="typescript">TypeScript</option>
-                        <option value="java">Java</option>
-                        <option value="javascript">JavaScript</option>
-                        <option value="c">C</option>
-                        <option value="cpp">C++</option>
-                        <option value="csharp">C#</option>
-                        <option value="go">Go</option>
-                        <option value="rust">Rust</option>
-                        <option value="php">PHP</option>
-                        <option value="ruby">Ruby</option>
-                    </select>
-                </div>
+                <label for="language"><i class="fas fa-code-branch"></i> Analysis Environment</label>
+                <select name="language" id="language">
+                    <option value="python">Python (Flask / Django)</option>
+                    <option value="javascript">JavaScript (Node.js / React)</option>
+                    <option value="typescript">TypeScript (Next.js / Angular)</option>
+                    <option value="java">Java (Spring Boot / Android)</option>
+                    <option value="c">C (Systems Programming)</option>
+                    <option value="cpp">C++ (High Performance)</option>
+                    <option value="csharp">C# (.NET / Unity)</option>
+                    <option value="go">Go (Cloud Services)</option>
+                    <option value="rust">Rust (Memory Safety)</option>
+                    <option value="php">PHP (Laravel / WordPress)</option>
+                    <option value="ruby">Ruby (on Rails)</option>
+                </select>
 
-                <div class="form-row">
-                    <label for="code"><i class="fas fa-terminal"></i> Source Code</label>
-                    <textarea name="code" id="code" rows="14" placeholder="Paste your code snippet here for deep analysis..."></textarea>
-                </div>
+                <label for="code"><i class="fas fa-terminal"></i> Source Code Input</label>
+                <textarea name="code" id="code" rows="14" placeholder="// Paste source code here for auditing..."></textarea>
 
                 <button type="submit" id="submitBtn">
-                    <i class="fas fa-magnifying-glass"></i> Analyze Code Security
+                    <i class="fas fa-shield-virus"></i> Initialize Security Scan
                 </button>
             </form>
         </div>
 
-        <div class="result-card" id="result-card" style="display:none;">
-            <h2><i class="fas fa-clipboard-check"></i> Analysis Result</h2>
+        <div class="result-card" id="result-card">
+            <div class="result-header">
+                <i class="fas fa-search-nodes"></i> Audit Complete: Vulnerability Report
+            </div>
             <pre><code id="result" class="language-json"></code></pre>
         </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script>
-        // Security Redirect
+        // Authentication Guard
         if (!localStorage.getItem("token")) {
             window.location.href = "/login";
         }
@@ -296,40 +100,43 @@
 
         scanForm.onsubmit = async (e) => {
             e.preventDefault();
-            const code = document.getElementById("code").value.trim();
+            const codeInput = document.getElementById("code");
+            const code = codeInput.value.trim();
 
             if (code.length < 10) {
-                alert("Please provide at least 10 characters of code.");
+                alert("The code provided is too short for a reliable audit.");
                 return;
             }
 
-            // UI Feedback
+            // UI Loading State
             const originalBtnText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Running Security Audit...';
+            submitBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Audit in Progress...';
             submitBtn.disabled = true;
 
             try {
                 const form = new FormData(scanForm);
+                const token = localStorage.getItem("token");
+
                 const response = await fetch("/scan", {
                     method: "POST",
-                    headers: { "Authorization": "Bearer " + localStorage.getItem("token") },
+                    headers: { "Authorization": "Bearer " + token },
                     body: form
                 });
 
-                if (!response.ok) throw new Error("Scan failed");
+                if (!response.ok) throw new Error("Server communication error.");
 
                 const data = await response.json();
-
-                // Display results
+                
+                // Display and Highlight
                 const codeBlock = document.getElementById("result");
                 codeBlock.textContent = JSON.stringify(data, null, 2);
                 Prism.highlightElement(codeBlock);
-
+                
                 resultCard.style.display = "block";
                 resultCard.scrollIntoView({ behavior: 'smooth' });
 
             } catch (err) {
-                alert("Error connecting to the analysis engine.");
+                alert("Scan Failed: " + err.message);
             } finally {
                 submitBtn.innerHTML = originalBtnText;
                 submitBtn.disabled = false;
