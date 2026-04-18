@@ -7,28 +7,24 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-LLM_API_KEY = os.getenv("OPENROUTER_API_KEY")
+# Checks both possible variable names
+LLM_API_KEY = os.getenv("OPENROUTER_API_KEY") or os.getenv("LLM_API_KEY")
 LLM_ENDPOINT = "https://openrouter.ai/api/v1/chat/completions"
-# Using a stable fallback model ID
 MODEL = "nvidia/nemotron-3-super-120b-a12b:free"
 
 def run_cmd(cmd):
     try:
-        # Check if the compiler/tool exists first to prevent "FileNotFound" errors
         result = subprocess.run(cmd, capture_output=True, timeout=5)
         return result.returncode == 0
     except Exception:
-        return None # Tool not found or timed out
+        return None
 
 def validate_code(code, language):
-    """Returns True if valid, False if invalid, None if check skipped."""
     try:
         language = language.lower()
-
         if language == "python":
             ast.parse(code)
             return True
-
         elif language in ["javascript", "typescript"]:
             with tempfile.NamedTemporaryFile(delete=False, suffix=".js") as f:
                 f.write(code.encode())
@@ -36,10 +32,7 @@ def validate_code(code, language):
             ok = run_cmd(["node", "--check", fname])
             os.unlink(fname)
             return ok
-
-        # Add more logic for other languages as needed...
-        return None # Default to skipping validation if tool is missing
-
+        return None 
     except Exception:
         return False
 
@@ -47,12 +40,9 @@ def analyze_code(code, language):
     if not code or len(code.strip()) < 3:
         return {"analysis": [{"name": "Error", "risk": "Code snippet too short."}]}
 
-    # Syntax check is now advisory
     is_valid = validate_code(code, language)
-    
-    # We only block if we are 100% sure it's invalid syntax
     if is_valid is False:
-         return {"analysis": [{"name": "Syntax Warning", "risk": "Code has syntax errors. Audit may be inaccurate.", "severity": "Low"}]}
+         return {"analysis": [{"name": "Syntax Warning", "risk": "Invalid syntax detected.", "severity": "Low"}]}
 
     prompt = f"""Analyze this {language} code for security vulnerabilities.
 Return ONLY bullet points in this format:
@@ -70,7 +60,8 @@ Code:
     headers = {
         "Authorization": f"Bearer {LLM_API_KEY}",
         "Content-Type": "application/json",
-        "HTTP-Referer": "http://localhost:5000",
+        # Updated to your actual Vercel domain
+        "HTTP-Referer": "https://securecodescanner.vercel.app",
         "X-Title": "Secure Code Scanner"
     }
 
@@ -92,7 +83,6 @@ Code:
     if "no vulnerabilities found" in content.lower():
         return {"analysis": "No vulnerabilities found"}
 
-    # Robust Parsing
     lines = content.split("\n")
     formatted = []
     current = {}
@@ -111,5 +101,4 @@ Code:
                 current[key if "cwe" not in key else "cwe"] = val.strip()
 
     if current: formatted.append(current)
-
     return {"analysis": formatted if formatted else content}
