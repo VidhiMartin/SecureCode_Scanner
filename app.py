@@ -136,9 +136,8 @@ def scan():
         # MOCKED RESULT - Ensure JSON consistency
         result = {
             "status": "COMPLETED",
-            "audit_id": "SEC-7712",
-            "findings": "Security audit finished. No high-severity vulnerabilities identified.",
-            "timestamp": "2026-04-22"
+            "findings": "No vulnerabilities identified.",
+            
         }
         return jsonify(result)
 
