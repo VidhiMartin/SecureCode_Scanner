@@ -130,16 +130,21 @@
     };
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
+    
+    // Set Tenant ID for Multi-tenancy Isolation
     auth.tenantId = "Enterprise-Test-avvoo"; 
 
-    // --- SECURE AUTHENTICATION GUARD (FIXED) ---
-    // Instead of checking localStorage immediately, wait for Firebase to confirm the user
-    auth.onAuthStateChanged((user) => {
+    // --- SECURE AUTHENTICATION GUARD ---
+    // Wait for the Firebase 'accounts:lookup' fetch to complete
+    auth.onAuthStateChanged(async (user) => {
         if (!user) {
-            // If Firebase confirms no user is logged in, then redirect
+            console.log("No active secure session. Redirecting to login vault...");
             window.location.href = "/login";
         } else {
-            console.log("Secure Session Active:", user.email);
+            console.log("Secure Session Confirmed:", user.email);
+            // Refresh the local token to keep it in sync with the backend
+            const token = await user.getIdToken();
+            localStorage.setItem("token", token);
         }
     });
 
@@ -160,7 +165,7 @@
     scanForm.onsubmit = async (e) => {
         e.preventDefault();
         
-        // Get user from active Firebase state
+        // Final check to ensure user didn't time out
         const user = auth.currentUser;
         if (!user) {
             window.location.href = "/login";
@@ -172,7 +177,7 @@
         submitBtn.disabled = true;
 
         try {
-            // Force a fresh ID token to ensure 2FA claims are included
+            // Force a fresh ID token to ensure backend verification succeeds
             const token = await user.getIdToken(true); 
             const formData = new FormData(scanForm);
 
@@ -198,6 +203,7 @@
             resultCard.scrollIntoView({ behavior: 'smooth' });
 
         } catch (err) {
+            console.error("Scan Error:", err);
             alert("Scan Failed: " + err.message);
         } finally {
             submitBtn.innerHTML = originalBtnText;
