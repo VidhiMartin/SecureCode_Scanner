@@ -7,6 +7,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 import firebase_admin
 from firebase_admin import credentials, auth
+from utils import analyze_code
 
 # --- Security Configuration & Logging ---
 logging.basicConfig(level=logging.INFO)
@@ -14,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
-# Enterprise Rate Limiter: 100 requests/hour per IP
+# Enterprise Rate Limiter
 limiter = Limiter(
     key_func=get_remote_address,
     app=app,
@@ -46,7 +47,6 @@ if not firebase_admin._apps:
         logger.error(f"FATAL: Firebase Initialization Failed: {e}")
 
 def get_current_user():
-    """Validates JWT and enforces Tenant-specific isolation."""
     auth_header = request.headers.get("Authorization")
     if not auth_header or not auth_header.startswith("Bearer "):
         return None
@@ -54,15 +54,12 @@ def get_current_user():
         token = auth_header.split(" ")[1]
         decoded = auth.verify_id_token(token, check_revoked=False)
         if decoded.get('firebase', {}).get('tenant') != TENANT_ID:
-            logger.warning(f"Unauthorized Tenant attempt: {decoded.get('firebase', {}).get('tenant')}")
             return None
         return decoded
     except Exception as e:
-        logger.error(f"JWT Verification Failed: {e}")
         return None
 
 def validate_language_match(code, lang):
-    """Heuristic syntax analysis to prevent language/environment mismatch."""
     code_lower = code.lower()
     if lang == "python":
         if "const " in code_lower or "let " in code_lower or "console.log" in code_lower:
@@ -71,8 +68,6 @@ def validate_language_match(code, lang):
         if "def " in code_lower and ":" in code_lower:
             return False, "Snippet appears to be Python, but environment is set to JavaScript/TypeScript."
     return True, ""
-
-# --- Routes ---
 
 @app.route("/")
 def home():
@@ -93,7 +88,6 @@ def signup_page():
 @app.route("/scan", methods=["POST"])
 @limiter.limit("10 per minute")
 def scan():
-    # WRAP EVERYTHING IN A TRY BLOCK TO PREVENT HTML ERROR PAGES
     try:
         user = get_current_user()
         if not user:
@@ -106,48 +100,46 @@ def scan():
         language = request.form.get("language", "").lower()
         code = request.form.get("code", "")
 
-        # 1. Payload Size Check
         if len(code) > MAX_CODE_SIZE:
             return jsonify({
                 "status": "REJECTED",
                 "error_code": "SIZE_EXCEEDED",
-                "audit_summary": f"Payload exceeds character limit of {MAX_CODE_SIZE}."
+                "audit_summary": f"Payload exceeds limit of {MAX_CODE_SIZE}."
             }), 413
 
-        
+        for pattern in MALICIOUS_PATTERNS:
+            if re.search(pattern, code, re.IGNORECASE):
+                return jsonify({
+                    "status": "REJECTED",
+                    "error_code": "MALICIOUS_INPUT_DETECTED",
+                    "audit_summary": "Prohibited system-level patterns detected."
+                }), 403
 
-        # 3. Environment/Language Mismatch Check
         is_match, msg = validate_language_match(code, language)
         if not is_match:
             return jsonify({
                 "status": "REJECTED",
                 "error_code": "LANGUAGE_MISMATCH",
-                "severity": "LOW",
-                "remediation": "Update the 'Environment Context' dropdown to match the input syntax."
+                "audit_summary": msg
             }), 422
 
         if not code.strip():
             return jsonify({
                 "status": "REJECTED",
                 "error_code": "EMPTY_INPUT",
-                "audit_summary": "No source code detected for analysis."
+                "audit_summary": "No source code detected."
             }), 400
 
-        # MOCKED RESULT - Ensure JSON consistency
-        result = {
-            "status": "COMPLETED",
-            "findings": "No vulnerabilities identified.",
-            
-        }
+        # REAL SCAN CALL
+        result = analyze_code(code, language)
         return jsonify(result)
 
     except Exception as e:
         logger.error(f"CRITICAL ROUTE FAULT: {e}")
-        # FORCING JSON ERROR INSTEAD OF HTML PAGE
         return jsonify({
             "status": "FAULT",
             "error_code": "SERVER_INTERNAL_ERROR",
-            "audit_summary": "The server encountered a critical logic error."
+            "audit_summary": "Internal logic error."
         }), 500
 
 if __name__ == "__main__":
