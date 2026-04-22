@@ -118,87 +118,92 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 
-    <script>
-        const firebaseConfig = {
-          apiKey: "AIzaSyD9llGi3Rq4eTgOA4QLI2hGK00v-jx0bCs",
-          authDomain: "code-scanner-91d48.firebaseapp.com",
-          projectId: "code-scanner-91d48"
-        };
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        auth.tenantId = "Enterprise-Test-avvoo"; 
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyD9llGi3Rq4eTgOA4QLI2hGK00v-jx0bCs",
+        authDomain: "code-scanner-91d48.firebaseapp.com",
+        projectId: "code-scanner-91d48"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    auth.tenantId = "Enterprise-Test-avvoo"; 
 
-        // --- Authentication Guard ---
-        const checkAuth = () => {
-            if (!localStorage.getItem("token")) {
-                window.location.href = "/login";
-            }
-        };
-        checkAuth();
+    // --- SECURE AUTHENTICATION GUARD (FIXED) ---
+    // Instead of checking localStorage immediately, wait for Firebase to confirm the user
+    auth.onAuthStateChanged((user) => {
+        if (!user) {
+            // If Firebase confirms no user is logged in, then redirect
+            window.location.href = "/login";
+        } else {
+            console.log("Secure Session Active:", user.email);
+        }
+    });
 
-        // --- Logout Logic ---
-        document.getElementById("logoutBtn").onclick = () => {
-            if (confirm("Are you sure you want to terminate your secure session?")) {
+    // --- Logout Logic ---
+    document.getElementById("logoutBtn").onclick = () => {
+        if (confirm("Are you sure you want to terminate your secure session?")) {
+            auth.signOut().then(() => {
                 localStorage.removeItem("token");
                 window.location.href = "/login";
-            }
-        };
+            });
+        }
+    };
 
-        const scanForm = document.getElementById("scanForm");
-        const submitBtn = document.getElementById("submitBtn");
-        const resultCard = document.getElementById("result-card");
+    const scanForm = document.getElementById("scanForm");
+    const submitBtn = document.getElementById("submitBtn");
+    const resultCard = document.getElementById("result-card");
 
-        scanForm.onsubmit = async (e) => {
-    e.preventDefault();
-    
-    // FIX 1: Get user directly from Firebase state
-    const user = auth.currentUser;
-    if (!user) {
-        window.location.href = "/login";
-        return;
-    }
-
-    const originalBtnText = submitBtn.innerHTML;
-    submitBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Audit in Progress...';
-    submitBtn.disabled = true;
-
-    try {
-        // FIX 2: Force a fresh token directly from the source
-        const token = await user.getIdToken(true); 
-        const formData = new FormData(scanForm);
-
-        const response = await fetch("/scan", {
-            method: "POST",
-            headers: { 
-                "Authorization": "Bearer " + token 
-            },
-            body: formData
-        });
-
-        if (response.status === 401) {
-            alert("Security Clearance Rejected. Please re-authenticate.");
+    scanForm.onsubmit = async (e) => {
+        e.preventDefault();
+        
+        // Get user from active Firebase state
+        const user = auth.currentUser;
+        if (!user) {
             window.location.href = "/login";
             return;
         }
 
-        const data = await response.json();
-        document.getElementById("result").textContent = JSON.stringify(data, null, 2);
-        Prism.highlightElement(document.getElementById("result"));
-        
-        resultCard.style.display = "block";
-        resultCard.scrollIntoView({ behavior: 'smooth' });
+        const originalBtnText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Audit in Progress...';
+        submitBtn.disabled = true;
 
-    } catch (err) {
-        alert("Scan Failed: " + err.message);
-    } finally {
-        submitBtn.innerHTML = originalBtnText;
-        submitBtn.disabled = false;
-    }
-};
-    </script>
+        try {
+            // Force a fresh ID token to ensure 2FA claims are included
+            const token = await user.getIdToken(true); 
+            const formData = new FormData(scanForm);
+
+            const response = await fetch("/scan", {
+                method: "POST",
+                headers: { 
+                    "Authorization": "Bearer " + token 
+                },
+                body: formData
+            });
+
+            if (response.status === 401) {
+                alert("Security Clearance Rejected. Please re-authenticate.");
+                window.location.href = "/login";
+                return;
+            }
+
+            const data = await response.json();
+            document.getElementById("result").textContent = JSON.stringify(data, null, 2);
+            Prism.highlightElement(document.getElementById("result"));
+            
+            resultCard.style.display = "block";
+            resultCard.scrollIntoView({ behavior: 'smooth' });
+
+        } catch (err) {
+            alert("Scan Failed: " + err.message);
+        } finally {
+            submitBtn.innerHTML = originalBtnText;
+            submitBtn.disabled = false;
+        }
+    };
+</script>
 </body>
 </html>
