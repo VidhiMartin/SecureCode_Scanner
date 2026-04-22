@@ -94,7 +94,6 @@ def scan():
     # Logic for your scanner would go here
     return jsonify({
         "status": "success",
-        "user": user['email'],
         "analysis": "No critical vulnerabilities found in the provided snippet."
     })
 
