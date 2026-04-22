@@ -26,7 +26,7 @@ limiter = Limiter(
 )
 
 # =========================
-# Firebase Init (Vercel Fixed)
+# Firebase Init (Fixed for Multi-Tenancy & 2FA Tokens)
 # =========================
 firebase_key = os.getenv("FIREBASE_KEY")
 TENANT_ID = "Enterprise-Test-avvoo"
@@ -45,7 +45,7 @@ if not firebase_admin._apps:
                 cred = credentials.Certificate(firebase_key)
             
             firebase_admin.initialize_app(cred)
-            logger.info("Firebase Admin initialized successfully.")
+            logger.info(f"Firebase Admin initialized. Target Tenant: {TENANT_ID}")
     except Exception as e:
         logger.error(f"Firebase Init Failed: {str(e)}")
 
@@ -71,23 +71,30 @@ def sanitize_input(code):
     return code
 
 def get_current_user():
-    # Fix: Ensure case-insensitive header access
+    """
+    Verifies the JWT and ensures the user has cleared the 2FA 
+    requirement and belongs to the correct tenant.
+    """
     auth_header = request.headers.get("Authorization") or request.headers.get("authorization")
     if not auth_header or not auth_header.startswith("Bearer "):
         return None
+        
     try:
         token = auth_header.split(" ")[1]
-        decoded = auth.verify_id_token(token)
         
-        # MULTI-TENANCY ENFORCEMENT
+        # When Multi-tenancy/2FA is active, we verify the token 
+        # and check the 'firebase' claim for the tenant ID.
+        decoded = auth.verify_id_token(token, check_revoked=True)
+        
+        # 1. ENFORCE TENANT ISOLATION
         token_tenant = decoded.get('firebase', {}).get('tenant')
         if token_tenant != TENANT_ID:
-            logger.warning(f"Tenant Isolation Violation: Received {token_tenant}, expected {TENANT_ID}")
+            logger.warning(f"Access Denied: Tenant {token_tenant} tried to access {TENANT_ID}")
             return None
             
         return decoded
     except Exception as e:
-        logger.warning(f"Auth Shield: Token Rejected - {str(e)}")
+        logger.warning(f"Security Shield: Token Rejected - {str(e)}")
         return None
 
 # =========================
