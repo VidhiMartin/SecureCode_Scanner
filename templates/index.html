@@ -40,7 +40,7 @@
         #result-card {
             display: none;
         }
-        /* Loading Overlay */
+        /* The Shield Overlay */
         #auth-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -52,7 +52,9 @@
 </head>
 
 <body>
-    <div id="auth-overlay"><i class="fas fa-shield-halved fa-spin" style="color:#00ff88; font-size:3rem;"></i></div>
+    <div id="auth-overlay">
+        <i class="fas fa-shield-halved fa-spin" style="color:#00ff88; font-size:3rem;"></i>
+    </div>
 
     <div class="nav-header">
         <button id="logoutBtn" class="btn-logout">
@@ -75,6 +77,7 @@
                 Enterprise-grade code security auditing powered by advanced LLM reasoning. 
                 Secure Code Scanner automates vulnerability detection and threat intelligence across 10+ programming languages.
             </p>
+            
             <div class="feature-grid">
                 <div class="feature-item">
                     <i class="fas fa-bug bullet-vuln"></i>
@@ -85,7 +88,9 @@
                     <span><strong>Threat Intelligence</strong><br>Global CVE/CWE database referencing.</span>
                 </div>
                 <div class="feature-item">
-                    <i class="fas fa-wrench bullet-patch"></i>
+                    <div class="bullet-patch-icon">
+                        <i class="fas fa-wrench bullet-patch"></i>
+                    </div>
                     <span><strong>Auto-Remediation</strong><br>Actionable secure-code patching.</span>
                 </div>
             </div>
@@ -95,7 +100,7 @@
     <div class="container">
         <div class="scanner-card">
             <form id="scanForm">
-                <label for="language"><i class="fas fa-code-branch"></i> Language </label>
+                <label for="language"><i class="fas fa-code-branch"></i> Select Environment </label>
                 <select name="language" id="language">
                     <option value="python">Python</option>
                     <option value="javascript">JavaScript</option>
@@ -127,6 +132,10 @@
         </div>
     </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+
 <script>
     const firebaseConfig = {
         apiKey: "AIzaSyD9llGi3Rq4eTgOA4QLI2hGK00v-jx0bCs",
@@ -135,49 +144,54 @@
     };
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
-    auth.tenantId = "Enterprise-Test-avvoo"; // Must be exactly as set in Google Console
+    auth.tenantId = "Enterprise-Test-avvoo"; 
 
-    // ATOMIC FIX: Check localStorage first to prevent the immediate "Flicker" redirect
-    const savedToken = localStorage.getItem("token");
-    if (!savedToken) {
-        console.log("No saved token in storage. Redirecting to login.");
-        window.location.href = "/login";
-    }
-
-    // Now let Firebase verify the session in the background
+    // --- Authentication & UI Handshake ---
     auth.onAuthStateChanged(async (user) => {
-        if (user) {
-            console.log("Firebase Session Verified:", user.email);
-            // Refresh the token in storage
-            const freshToken = await user.getIdToken();
-            localStorage.setItem("token", freshToken);
-            document.getElementById("auth-overlay").style.display = "none";
+        if (!user) {
+            // Check local storage as a safety net
+            const token = localStorage.getItem("token");
+            if (!token) {
+                window.location.href = "/login";
+            }
         } else {
-            // If Firebase is certain there is no user after its internal check
-            console.warn("Firebase reported null user. Clearing storage.");
-            localStorage.removeItem("token");
-            window.location.href = "/login";
+            const token = await user.getIdToken();
+            localStorage.setItem("token", token);
+            // HIDE THE SHIELD
+            document.getElementById("auth-overlay").style.display = "none";
         }
     });
 
-    // Logout logic
+    // Session Termination
     document.getElementById("logoutBtn").onclick = () => {
-        auth.signOut().then(() => {
-            localStorage.removeItem("token");
-            window.location.href = "/login";
-        });
+        if (confirm("Are you sure you want to terminate your secure session?")) {
+            auth.signOut().then(() => {
+                localStorage.removeItem("token");
+                window.location.href = "/login";
+            });
+        }
     };
 
-    // Form submission logic
-    document.getElementById("scanForm").onsubmit = async (e) => {
+    // Scanner Logic
+    const scanForm = document.getElementById("scanForm");
+    const submitBtn = document.getElementById("submitBtn");
+    const resultCard = document.getElementById("result-card");
+
+    scanForm.onsubmit = async (e) => {
         e.preventDefault();
-        const submitBtn = document.getElementById("submitBtn");
+        const user = auth.currentUser;
+        if (!user) {
+            window.location.href = "/login";
+            return;
+        }
+
+        const originalBtnText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Audit in Progress...';
         submitBtn.disabled = true;
 
         try {
-            // Use the most current token available
-            const token = await auth.currentUser.getIdToken(true);
-            const formData = new FormData(e.target);
+            const token = await user.getIdToken(true); 
+            const formData = new FormData(scanForm);
 
             const response = await fetch("/scan", {
                 method: "POST",
@@ -186,16 +200,22 @@
             });
 
             if (response.status === 401) {
-                throw new Error("Session expired or unauthorized tenant.");
+                alert("Security Clearance Rejected. Please re-authenticate.");
+                window.location.href = "/login";
+                return;
             }
 
             const data = await response.json();
             document.getElementById("result").textContent = JSON.stringify(data, null, 2);
-            document.getElementById("result-card").style.display = "block";
+            Prism.highlightElement(document.getElementById("result"));
+            
+            resultCard.style.display = "block";
+            resultCard.scrollIntoView({ behavior: 'smooth' });
+
         } catch (err) {
             alert("Scan Failed: " + err.message);
-            window.location.href = "/login";
         } finally {
+            submitBtn.innerHTML = originalBtnText;
             submitBtn.disabled = false;
         }
     };
