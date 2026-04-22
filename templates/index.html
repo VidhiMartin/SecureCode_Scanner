@@ -137,34 +137,29 @@
         authDomain: "code-scanner-91d48.firebaseapp.com",
         projectId: "code-scanner-91d48"
     };
-    
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
-    
-    // 1. Force Local Persistence FIRST
-    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).then(() => {
-        // 2. Set Tenant ID immediately after persistence
-        auth.tenantId = "Enterprise-Test-avvoo"; 
+    auth.tenantId = "Enterprise-Test-avvoo"; 
 
-        // 3. The Wait Logic
-        let initialCheckDone = false;
-
-        auth.onAuthStateChanged(async (user) => {
-            initialCheckDone = true;
-            if (!user) {
-                console.log("No user session found. Redirecting...");
-                window.location.href = "/login";
-            } else {
-                console.log("Session verified for:", user.email);
-                const token = await user.getIdToken();
-                localStorage.setItem("token", token);
-                document.getElementById("auth-overlay").style.display = "none";
-            }
-        });
+    // THE EXPERT FIX:
+    // We add a 750ms grace period to allow Firebase to check the local DB for a session.
+    auth.onAuthStateChanged(async (user) => {
+        if (!user) {
+            setTimeout(() => {
+                // If after 750ms there is still no user, then we redirect.
+                if (!auth.currentUser) {
+                    window.location.href = "/login";
+                }
+            }, 750);
+        } else {
+            const token = await user.getIdToken();
+            localStorage.setItem("token", token);
+            document.getElementById("auth-overlay").style.display = "none";
+        }
     });
 
     document.getElementById("logoutBtn").onclick = () => {
-        if (confirm("Terminate secure session?")) {
+        if (confirm("Are you sure you want to terminate your secure session?")) {
             auth.signOut().then(() => {
                 localStorage.removeItem("token");
                 window.location.href = "/login";
@@ -174,6 +169,7 @@
 
     const scanForm = document.getElementById("scanForm");
     const submitBtn = document.getElementById("submitBtn");
+    const resultCard = document.getElementById("result-card");
 
     scanForm.onsubmit = async (e) => {
         e.preventDefault();
@@ -198,7 +194,7 @@
             });
 
             if (response.status === 401) {
-                alert("Session expired. Re-authenticating...");
+                alert("Security Clearance Rejected. Please re-authenticate.");
                 window.location.href = "/login";
                 return;
             }
@@ -207,8 +203,8 @@
             document.getElementById("result").textContent = JSON.stringify(data, null, 2);
             Prism.highlightElement(document.getElementById("result"));
             
-            document.getElementById("result-card").style.display = "block";
-            document.getElementById("result-card").scrollIntoView({ behavior: 'smooth' });
+            resultCard.style.display = "block";
+            resultCard.scrollIntoView({ behavior: 'smooth' });
 
         } catch (err) {
             alert("Scan Failed: " + err.message);
