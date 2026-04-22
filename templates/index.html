@@ -40,7 +40,7 @@
         #result-card {
             display: none;
         }
-        /* Loading Overlay to prevent the login redirect loop */
+        /* Loading Overlay */
         #auth-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -137,29 +137,34 @@
         authDomain: "code-scanner-91d48.firebaseapp.com",
         projectId: "code-scanner-91d48"
     };
+    
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
-    auth.tenantId = "Enterprise-Test-avvoo"; 
+    
+    // 1. Force Local Persistence FIRST
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).then(() => {
+        // 2. Set Tenant ID immediately after persistence
+        auth.tenantId = "Enterprise-Test-avvoo"; 
 
-    // THE EXPERT FIX:
-    // We start with a flag that says "Wait, I haven't checked for a user yet."
-    let authInitialized = false;
+        // 3. The Wait Logic
+        let initialCheckDone = false;
 
-    auth.onAuthStateChanged(async (user) => {
-        authInitialized = true;
-        if (!user) {
-            // Only redirect if we are CERTAIN no user exists after the SDK initializes
-            window.location.href = "/login";
-        } else {
-            const token = await user.getIdToken();
-            localStorage.setItem("token", token);
-            // Remove the loading screen once confirmed
-            document.getElementById("auth-overlay").style.display = "none";
-        }
+        auth.onAuthStateChanged(async (user) => {
+            initialCheckDone = true;
+            if (!user) {
+                console.log("No user session found. Redirecting...");
+                window.location.href = "/login";
+            } else {
+                console.log("Session verified for:", user.email);
+                const token = await user.getIdToken();
+                localStorage.setItem("token", token);
+                document.getElementById("auth-overlay").style.display = "none";
+            }
+        });
     });
 
     document.getElementById("logoutBtn").onclick = () => {
-        if (confirm("Are you sure you want to terminate your secure session?")) {
+        if (confirm("Terminate secure session?")) {
             auth.signOut().then(() => {
                 localStorage.removeItem("token");
                 window.location.href = "/login";
@@ -169,7 +174,6 @@
 
     const scanForm = document.getElementById("scanForm");
     const submitBtn = document.getElementById("submitBtn");
-    const resultCard = document.getElementById("result-card");
 
     scanForm.onsubmit = async (e) => {
         e.preventDefault();
@@ -194,7 +198,7 @@
             });
 
             if (response.status === 401) {
-                alert("Security Clearance Rejected. Please re-authenticate.");
+                alert("Session expired. Re-authenticating...");
                 window.location.href = "/login";
                 return;
             }
@@ -203,8 +207,8 @@
             document.getElementById("result").textContent = JSON.stringify(data, null, 2);
             Prism.highlightElement(document.getElementById("result"));
             
-            resultCard.style.display = "block";
-            resultCard.scrollIntoView({ behavior: 'smooth' });
+            document.getElementById("result-card").style.display = "block";
+            document.getElementById("result-card").scrollIntoView({ behavior: 'smooth' });
 
         } catch (err) {
             alert("Scan Failed: " + err.message);
