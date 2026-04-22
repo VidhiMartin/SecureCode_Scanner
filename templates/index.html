@@ -2,124 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>SECURE CODE SCANNER | Advanced LLM Code Auditor</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"/>
-    
+    <title>SECURE CODE SCANNER</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        .nav-header {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-        }
-        .btn-logout {
-            background: rgba(255, 68, 68, 0.1);
-            color: #ff4444;
-            border: 1px solid rgba(255, 68, 68, 0.3);
-            padding: 6px 14px;
-            border-radius: 8px;
-            font-family: 'Space Grotesk', sans-serif;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .btn-logout:hover {
-            background: #ff4444;
-            color: white;
-            box-shadow: 0 0 15px rgba(255, 68, 68, 0.4);
-        }
-        /* Hidden by default until scan completes */
-        #result-card {
-            display: none;
-        }
-    </style>
-</head>
-
+    </head>
 <body>
-    <div class="nav-header">
-        <button id="logoutBtn" class="btn-logout">
-            <i class="fas fa-power-off"></i> Terminate Session
-        </button>
-    </div>
-
-    <div class="hero">
-        <div class="container">
-            <h1 class="headline">Secure Code Scanner</h1>
-            <div class="floating-shield">
-                <i class="fas fa-shield-halved"></i>
-            </div>
-            <br>
-            <div class="model-badge">
-                <i class="fas fa-microchip"></i> 
-                <span>Powered by NVIDIA Nemotron-3 Super 120B</span>
-            </div>
-            <p class="subhead">
-                Enterprise-grade code security auditing powered by advanced LLM reasoning. 
-                Secure Code Scanner automates vulnerability detection and threat intelligence across 10+ programming languages.
-            </p>
-            <div class="feature-grid">
-                <div class="feature-item">
-                    <i class="fas fa-bug bullet-vuln"></i>
-                    <span><strong>Vulnerability Audit</strong><br>Real-time logic & flaw detection.</span>
-                </div>
-                <div class="feature-item">
-                    <i class="fas fa-database bullet-cve"></i>
-                    <span><strong>Threat Intelligence</strong><br>Global CVE/CWE database referencing.</span>
-                </div>
-                <div class="feature-item">
-                    <i class="fas fa-wrench bullet-patch"></i>
-                    <span><strong>Auto-Remediation</strong><br>Actionable secure-code patching.</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="container">
-        <div class="scanner-card">
-            <form id="scanForm">
-                <label for="language"><i class="fas fa-code-branch"></i> Language </label>
-                <select name="language" id="language">
-                    <option value="python">Python</option>
-                    <option value="javascript">JavaScript</option>
-                    <option value="typescript">TypeScript</option>
-                    <option value="java">Java</option>
-                    <option value="c">C</option>
-                    <option value="cpp">C++</option>
-                    <option value="csharp">C#</option>
-                    <option value="go">Go</option>
-                    <option value="rust">Rust</option>
-                    <option value="php">PHP</option>
-                    <option value="ruby">Ruby</option>
-                </select>
-
-                <label for="code"><i class="fas fa-terminal"></i> Source Code Input</label>
-                <textarea name="code" id="code" rows="14" placeholder="// Paste source code here for auditing..."></textarea>
-
-                <button type="submit" id="submitBtn">
-                    <i class="fas fa-shield-virus"></i> Initialize Security Scan
-                </button>
-            </form>
-        </div>
-
-        <div class="result-card" id="result-card">
-            <div class="result-header">
-                <i class="fas fa-search-nodes"></i> Audit Complete: Vulnerability Report
-            </div>
-            <pre><code id="result" class="language-json"></code></pre>
-        </div>
-    </div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 
 <script>
@@ -130,84 +17,58 @@
     };
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
-    
-    // Set Tenant ID for Multi-tenancy Isolation
-    auth.tenantId = "Enterprise-Test-avvoo"; 
+    auth.tenantId = "Enterprise-Test-avvoo";
 
-    // --- SECURE AUTHENTICATION GUARD ---
-    // Wait for the Firebase 'accounts:lookup' fetch to complete
+    // FIX: Auth State Guard with initial check
+    let isInitialLoad = true;
+
     auth.onAuthStateChanged(async (user) => {
-        if (!user) {
-            console.log("No active secure session. Redirecting to login vault...");
+        if (!user && !isInitialLoad) {
             window.location.href = "/login";
-        } else {
-            console.log("Secure Session Confirmed:", user.email);
-            // Refresh the local token to keep it in sync with the backend
+        } else if (user) {
             const token = await user.getIdToken();
             localStorage.setItem("token", token);
+            document.body.style.display = "block"; // Only show body once authed
         }
+        isInitialLoad = false;
     });
 
-    // --- Logout Logic ---
+    // Logout Logic
     document.getElementById("logoutBtn").onclick = () => {
-        if (confirm("Are you sure you want to terminate your secure session?")) {
-            auth.signOut().then(() => {
-                localStorage.removeItem("token");
-                window.location.href = "/login";
-            });
-        }
+        auth.signOut().then(() => {
+            localStorage.removeItem("token");
+            window.location.href = "/login";
+        });
     };
 
     const scanForm = document.getElementById("scanForm");
-    const submitBtn = document.getElementById("submitBtn");
-    const resultCard = document.getElementById("result-card");
-
     scanForm.onsubmit = async (e) => {
         e.preventDefault();
-        
-        // Final check to ensure user didn't time out
         const user = auth.currentUser;
-        if (!user) {
-            window.location.href = "/login";
-            return;
-        }
+        if (!user) return window.location.href = "/login";
 
-        const originalBtnText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Audit in Progress...';
+        const submitBtn = document.getElementById("submitBtn");
         submitBtn.disabled = true;
+        submitBtn.innerText = "Analyzing...";
 
         try {
-            // Force a fresh ID token to ensure backend verification succeeds
-            const token = await user.getIdToken(true); 
+            const token = await user.getIdToken(true);
             const formData = new FormData(scanForm);
 
             const response = await fetch("/scan", {
                 method: "POST",
-                headers: { 
-                    "Authorization": "Bearer " + token 
-                },
+                headers: { "Authorization": "Bearer " + token },
                 body: formData
             });
 
-            if (response.status === 401) {
-                alert("Security Clearance Rejected. Please re-authenticate.");
-                window.location.href = "/login";
-                return;
-            }
-
             const data = await response.json();
             document.getElementById("result").textContent = JSON.stringify(data, null, 2);
-            Prism.highlightElement(document.getElementById("result"));
-            
-            resultCard.style.display = "block";
-            resultCard.scrollIntoView({ behavior: 'smooth' });
-
+            document.getElementById("result-card").style.display = "block";
         } catch (err) {
-            console.error("Scan Error:", err);
-            alert("Scan Failed: " + err.message);
+            alert("Scan Error: " + err.message);
         } finally {
-            submitBtn.innerHTML = originalBtnText;
             submitBtn.disabled = false;
+            submitBtn.innerText = "Initialize Security Scan";
         }
     };
 </script>
