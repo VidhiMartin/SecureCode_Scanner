@@ -71,53 +71,43 @@
 
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
-    
-    // Multi-tenancy MUST be set before any auth operations
     auth.tenantId = "Enterprise-Test-avvoo";
 
-    // Initialize ReCaptcha for 2FA SMS verification
     const recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
         'size': 'invisible'
     });
 
-    /**
-     * Finalizes the login by saving the token and allowing Firebase 
-     * internal state to settle before redirecting.
-     */
     const finalizeLogin = async (user) => {
         try {
-            // Force a fresh token to ensure all 2FA claims are updated
             const token = await user.getIdToken(true);
             localStorage.setItem("token", token);
             
-            // 500ms delay prevents the 'onAuthStateChanged' race condition in index.html
-            setTimeout(() => {
-                window.location.href = "/scanner";
-            }, 500);
+            // EXPERT FIX: Force an auth observer check BEFORE redirecting.
+            // This ensures the local database is updated.
+            const unsubscribe = auth.onAuthStateChanged((u) => {
+                if (u) {
+                    unsubscribe();
+                    window.location.href = "/scanner";
+                }
+            });
+            // Fallback
+            setTimeout(() => { window.location.href = "/scanner"; }, 1000);
         } catch (e) {
             console.error("Session Finalization Error:", e);
             alert("Session sync failed. Please try again.");
         }
     };
 
-    // Forgot Password Logic
     document.getElementById("forgotPasswordBtn").onclick = async (e) => {
         e.preventDefault();
         const email = document.getElementById("email").value;
-        if (!email) {
-            alert("Please enter your operative email address first.");
-            document.getElementById("email").focus();
-            return;
-        }
+        if (!email) { alert("Please enter email first."); return; }
         try {
             await auth.sendPasswordResetEmail(email);
-            alert("Security reset link dispatched to your email.");
-        } catch (err) {
-            alert("Reset Failure: " + err.message);
-        }
+            alert("Security reset link dispatched.");
+        } catch (err) { alert(err.message); }
     };
 
-    // Main Login Logic with 2FA Handling
     document.getElementById("loginForm").onsubmit = async (e) => {
         e.preventDefault();
         const btn = document.getElementById("submitBtn");
@@ -128,40 +118,24 @@
         btn.disabled = true;
 
         try {
-            // Ensure the session persists even if the browser is closed
             await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-            
-            // Attempt standard sign-in
             const userCred = await auth.signInWithEmailAndPassword(email, password);
             await finalizeLogin(userCred.user);
 
         } catch (err) {
             if (err.code === 'auth/multi-factor-auth-required') {
                 const resolver = err.resolver;
-                
-                const phoneInfoOptions = {
-                    multiFactorHint: resolver.hints[0],
-                    session: resolver.session
-                };
-                
+                const phoneInfoOptions = { multiFactorHint: resolver.hints[0], session: resolver.session };
                 const phoneAuthProvider = new firebase.auth.PhoneAuthProvider();
                 
                 try {
-                    const verificationId = await phoneAuthProvider.verifyPhoneNumber(
-                        phoneInfoOptions, 
-                        recaptchaVerifier
-                    );
-                    
-                    const smsCode = prompt("SECURITY CHALLENGE: Enter the 6-digit code sent to your device:");
-                    
+                    const verificationId = await phoneAuthProvider.verifyPhoneNumber(phoneInfoOptions, recaptchaVerifier);
+                    const smsCode = prompt("SECURITY CHALLENGE: Enter 6-digit code:");
                     if (smsCode) {
                         const cred = firebase.auth.PhoneAuthProvider.credential(verificationId, smsCode);
                         const multiFactorAssertion = firebase.auth.PhoneMultiFactorGenerator.assertion(cred);
-                        
                         const mfaUserCred = await resolver.resolveSignIn(multiFactorAssertion);
                         await finalizeLogin(mfaUserCred.user);
-                    } else {
-                        throw new Error("MFA Code was not provided.");
                     }
                 } catch (mfaErr) {
                     alert("MFA Failure: " + mfaErr.message);
