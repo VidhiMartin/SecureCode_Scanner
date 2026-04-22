@@ -72,7 +72,7 @@
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     
-    // Multi-tenancy must be set before any auth operations
+    // Multi-tenancy MUST be set before any auth operations
     auth.tenantId = "Enterprise-Test-avvoo";
 
     // Initialize ReCaptcha for 2FA SMS verification
@@ -80,10 +80,24 @@
         'size': 'invisible'
     });
 
+    /**
+     * Finalizes the login by saving the token and allowing Firebase 
+     * internal state to settle before redirecting.
+     */
     const finalizeLogin = async (user) => {
-        const token = await user.getIdToken(true);
-        localStorage.setItem("token", token);
-        window.location.href = "/scanner";
+        try {
+            // Force a fresh token to ensure all 2FA claims are updated
+            const token = await user.getIdToken(true);
+            localStorage.setItem("token", token);
+            
+            // 500ms delay prevents the 'onAuthStateChanged' race condition in index.html
+            setTimeout(() => {
+                window.location.href = "/scanner";
+            }, 500);
+        } catch (e) {
+            console.error("Session Finalization Error:", e);
+            alert("Session sync failed. Please try again.");
+        }
     };
 
     // Forgot Password Logic
@@ -114,6 +128,9 @@
         btn.disabled = true;
 
         try {
+            // Ensure the session persists even if the browser is closed
+            await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+            
             // Attempt standard sign-in
             const userCred = await auth.signInWithEmailAndPassword(email, password);
             await finalizeLogin(userCred.user);
@@ -122,7 +139,6 @@
             if (err.code === 'auth/multi-factor-auth-required') {
                 const resolver = err.resolver;
                 
-                // 1. Prepare MFA session and hint
                 const phoneInfoOptions = {
                     multiFactorHint: resolver.hints[0],
                     session: resolver.session
@@ -131,20 +147,17 @@
                 const phoneAuthProvider = new firebase.auth.PhoneAuthProvider();
                 
                 try {
-                    // 2. Trigger the SMS code send
                     const verificationId = await phoneAuthProvider.verifyPhoneNumber(
                         phoneInfoOptions, 
                         recaptchaVerifier
                     );
                     
-                    // 3. Prompt user for the code (You can replace this with a UI modal later)
                     const smsCode = prompt("SECURITY CHALLENGE: Enter the 6-digit code sent to your device:");
                     
                     if (smsCode) {
                         const cred = firebase.auth.PhoneAuthProvider.credential(verificationId, smsCode);
                         const multiFactorAssertion = firebase.auth.PhoneMultiFactorGenerator.assertion(cred);
                         
-                        // 4. Resolve the sign-in with the second factor
                         const mfaUserCred = await resolver.resolveSignIn(multiFactorAssertion);
                         await finalizeLogin(mfaUserCred.user);
                     } else {
