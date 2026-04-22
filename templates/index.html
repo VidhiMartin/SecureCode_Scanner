@@ -127,10 +127,6 @@
         </div>
     </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-
 <script>
     const firebaseConfig = {
         apiKey: "AIzaSyD9llGi3Rq4eTgOA4QLI2hGK00v-jx0bCs",
@@ -139,53 +135,49 @@
     };
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
-    auth.tenantId = "Enterprise-Test-avvoo"; 
+    auth.tenantId = "Enterprise-Test-avvoo"; // Must be exactly as set in Google Console
 
-    // THE EXPERT FIX:
-    // We add a 750ms grace period to allow Firebase to check the local DB for a session.
+    // ATOMIC FIX: Check localStorage first to prevent the immediate "Flicker" redirect
+    const savedToken = localStorage.getItem("token");
+    if (!savedToken) {
+        console.log("No saved token in storage. Redirecting to login.");
+        window.location.href = "/login";
+    }
+
+    // Now let Firebase verify the session in the background
     auth.onAuthStateChanged(async (user) => {
-        if (!user) {
-            setTimeout(() => {
-                // If after 750ms there is still no user, then we redirect.
-                if (!auth.currentUser) {
-                    window.location.href = "/login";
-                }
-            }, 750);
-        } else {
-            const token = await user.getIdToken();
-            localStorage.setItem("token", token);
+        if (user) {
+            console.log("Firebase Session Verified:", user.email);
+            // Refresh the token in storage
+            const freshToken = await user.getIdToken();
+            localStorage.setItem("token", freshToken);
             document.getElementById("auth-overlay").style.display = "none";
+        } else {
+            // If Firebase is certain there is no user after its internal check
+            console.warn("Firebase reported null user. Clearing storage.");
+            localStorage.removeItem("token");
+            window.location.href = "/login";
         }
     });
 
+    // Logout logic
     document.getElementById("logoutBtn").onclick = () => {
-        if (confirm("Are you sure you want to terminate your secure session?")) {
-            auth.signOut().then(() => {
-                localStorage.removeItem("token");
-                window.location.href = "/login";
-            });
-        }
+        auth.signOut().then(() => {
+            localStorage.removeItem("token");
+            window.location.href = "/login";
+        });
     };
 
-    const scanForm = document.getElementById("scanForm");
-    const submitBtn = document.getElementById("submitBtn");
-    const resultCard = document.getElementById("result-card");
-
-    scanForm.onsubmit = async (e) => {
+    // Form submission logic
+    document.getElementById("scanForm").onsubmit = async (e) => {
         e.preventDefault();
-        const user = auth.currentUser;
-        if (!user) {
-            window.location.href = "/login";
-            return;
-        }
-
-        const originalBtnText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Audit in Progress...';
+        const submitBtn = document.getElementById("submitBtn");
         submitBtn.disabled = true;
 
         try {
-            const token = await user.getIdToken(true); 
-            const formData = new FormData(scanForm);
+            // Use the most current token available
+            const token = await auth.currentUser.getIdToken(true);
+            const formData = new FormData(e.target);
 
             const response = await fetch("/scan", {
                 method: "POST",
@@ -194,22 +186,16 @@
             });
 
             if (response.status === 401) {
-                alert("Security Clearance Rejected. Please re-authenticate.");
-                window.location.href = "/login";
-                return;
+                throw new Error("Session expired or unauthorized tenant.");
             }
 
             const data = await response.json();
             document.getElementById("result").textContent = JSON.stringify(data, null, 2);
-            Prism.highlightElement(document.getElementById("result"));
-            
-            resultCard.style.display = "block";
-            resultCard.scrollIntoView({ behavior: 'smooth' });
-
+            document.getElementById("result-card").style.display = "block";
         } catch (err) {
             alert("Scan Failed: " + err.message);
+            window.location.href = "/login";
         } finally {
-            submitBtn.innerHTML = originalBtnText;
             submitBtn.disabled = false;
         }
     };
