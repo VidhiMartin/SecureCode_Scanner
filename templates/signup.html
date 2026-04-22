@@ -58,7 +58,7 @@ const firebaseConfig = {
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 
-// Set Tenant ID for Multi-tenancy Isolation
+// CRITICAL: Set Tenant ID before any auth operations
 auth.tenantId = "Enterprise-Test-avvoo";
 
 document.getElementById("signupForm").onsubmit = async (e) => {
@@ -78,13 +78,14 @@ document.getElementById("signupForm").onsubmit = async (e) => {
 
     try {
         const userCred = await auth.createUserWithEmailAndPassword(email, password);
+        const user = userCred.user;
         
-        // MFA Enrollment Prompt (Optional but fixed to ensure it doesn't break standard signup)
+        // --- MFA Enrollment Prompt ---
         if (confirm("Account created! Enable SMS MFA now for enterprise-grade security?")) {
             const phoneNumber = prompt("Enter your phone number (e.g., +11234567890):");
             if (phoneNumber) {
                 const recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { 'size': 'invisible' });
-                const session = await userCred.user.multiFactor.getSession();
+                const session = await user.multiFactor.getSession();
                 const phoneInfoOptions = { phoneNumber: phoneNumber, session: session };
                 const phoneAuthProvider = new firebase.auth.PhoneAuthProvider();
                 
@@ -94,17 +95,22 @@ document.getElementById("signupForm").onsubmit = async (e) => {
                 if (code) {
                     const cred = firebase.auth.PhoneAuthProvider.credential(verificationId, code);
                     const multiFactorAssertion = firebase.auth.PhoneMultiFactorGenerator.assertion(cred);
-                    await userCred.user.multiFactor.enroll(multiFactorAssertion, "Primary Phone");
+                    await user.multiFactor.enroll(multiFactorAssertion, "Primary Phone");
                     alert("MFA Enrolled Successfully!");
                 }
             }
         }
 
-        alert("Identity Created. Redirecting to login...");
-        window.location.href = "/login";
+        // --- THE HANDSHAKE FIX ---
+        // Force get a token and save it to localStorage immediately 
+        // so index.html doesn't kick the user back to login.
+        const token = await user.getIdToken(true);
+        localStorage.setItem("token", token);
+
+        alert("Identity Verified. Entering Secure Environment...");
+        window.location.href = "/scanner";
         
     } catch (err) {
-        // Log to console for debugging and alert the user
         console.error("Signup Error:", err);
         alert("Registration Failed: " + err.message);
         btn.innerHTML = '<i class="fas fa-user-shield"></i> Initialize Account';
