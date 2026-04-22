@@ -6,32 +6,48 @@ import re
 
 logger = logging.getLogger(__name__)
 
+# --- Environment Configuration ---
 LLM_API_KEY = os.getenv("OPENROUTER_API_KEY")
 LLM_ENDPOINT = "https://openrouter.ai/api/v1/chat/completions"
 MODEL = "nvidia/nemotron-3-super-120b-a12b:free"
 
 def analyze_code(code, language):
+    """
+    Performs a Deep Security Audit using NVIDIA Nemotron via OpenRouter.
+    Ensures strict JSON output for frontend compatibility.
+    """
     if not code or len(code.strip()) < 10:
-        return {"analysis": [{"name": "Policy Error", "risk": "Insufficient code context.", "severity": "N/A", "fix": "Add more code."}]}
+        return {
+            "analysis": [{
+                "name": "Policy Error", 
+                "risk": "Insufficient code context for a meaningful security audit.", 
+                "severity": "N/A", 
+                "fix": "Provide a more complete code snippet."
+            }]
+        }
 
-    prompt = f"""You are an expert security static analysis tool. 
-Task: Audit the following code for security vulnerabilities.
-Instructions: Return ONLY a JSON object with a key "analysis" containing a list of vulnerability objects.
+    # Strict System Prompt to force structured JSON output
+    prompt = f"""You are an automated vulnerability scanner. 
+Audit this {language} code for security flaws (e.g., SQL Injection, XSS, CSRF, insecure configuration).
 
-Each object must follow this structure:
+IMPORTANT: You must output ONLY a valid JSON object. 
+If no vulnerabilities are found, return a single entry in the list stating the code is clean.
+
+Required JSON Structure:
 {{
-  "name": "vulnerability name",
-  "severity": "score/10",
-  "cwe": "CWE ID",
-  "risk": "impact description",
-  "fix": "mitigation steps"
+  "analysis": [
+    {{
+      "name": "vulnerability name",
+      "severity": "score/10",
+      "cwe": "CWE ID",
+      "risk": "description of impact",
+      "fix": "specific remediation"
+    }}
+  ]
 }}
 
-<user_code_context>
-Language: {language}
-Code:
-{code}
-</user_code_context>"""
+Code to Audit:
+{code}"""
 
     headers = {
         "Authorization": f"Bearer {LLM_API_KEY}",
@@ -43,11 +59,11 @@ Code:
     payload = {
         "model": MODEL,
         "messages": [
-            {"role": "system", "content": "You are a secure coding assistant that only outputs valid JSON."},
+            {"role": "system", "content": "You are a specialized security agent. Your output must be 100% valid JSON only. No prose, no markdown, no conversational text."},
             {"role": "user", "content": prompt}
         ],
         "response_format": {"type": "json_object"},
-        "temperature": 0.0
+        "temperature": 0.1 # Prevents "stuck" logic on complex syntax
     }
 
     try:
@@ -56,12 +72,26 @@ Code:
         data = r.json()
         content = data["choices"][0]["message"]["content"].strip()
         
-        # FIX: Strip Markdown wrappers if the LLM includes them
+        # Strip Markdown wrappers (JSON code blocks) if the LLM includes them
         if content.startswith("```"):
             content = re.sub(r'^```[a-z]*\n?|```$', '', content, flags=re.MULTILINE).strip()
             
-        return json.loads(content)
+        parsed_result = json.loads(content)
+
+        # SANITY CHECK: Detect and fix empty or malformed model responses
+        if not parsed_result.get("analysis") or not parsed_result["analysis"][0].get("name"):
+            return {
+                "analysis": [{
+                    "name": "Audit Engine Verification Error",
+                    "severity": "N/A",
+                    "cwe": "N/A",
+                    "risk": "The engine recognized the syntax but failed to populate the report keys correctly.",
+                    "fix": "Re-run the scan or check the source code for unclosed string literals."
+                }]
+            }
+
+        return parsed_result
         
     except Exception as e:
         logger.error(f"Secure API Link Failure: {e}")
-        return {"error": "AI Audit Engine Unavailable"}
+        return {"error": "AI Audit Engine Unavailable. Check your OpenRouter API credits and connectivity."}
