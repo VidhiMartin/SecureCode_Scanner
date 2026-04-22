@@ -68,9 +68,17 @@
         authDomain: "code-scanner-91d48.firebaseapp.com",
         projectId: "code-scanner-91d48"
     };
+
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
+    
+    // Multi-tenancy must be set before any auth operations
     auth.tenantId = "Enterprise-Test-avvoo";
+
+    // Initialize ReCaptcha for 2FA SMS verification
+    const recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+        'size': 'invisible'
+    });
 
     const finalizeLogin = async (user) => {
         const token = await user.getIdToken(true);
@@ -78,6 +86,7 @@
         window.location.href = "/scanner";
     };
 
+    // Forgot Password Logic
     document.getElementById("forgotPasswordBtn").onclick = async (e) => {
         e.preventDefault();
         const email = document.getElementById("email").value;
@@ -88,12 +97,13 @@
         }
         try {
             await auth.sendPasswordResetEmail(email);
-            alert("Security reset link dispatched to your email. Check your inbox.");
+            alert("Security reset link dispatched to your email.");
         } catch (err) {
             alert("Reset Failure: " + err.message);
         }
     };
 
+    // Main Login Logic with 2FA Handling
     document.getElementById("loginForm").onsubmit = async (e) => {
         e.preventDefault();
         const btn = document.getElementById("submitBtn");
@@ -104,35 +114,41 @@
         btn.disabled = true;
 
         try {
+            // Attempt standard sign-in
             const userCred = await auth.signInWithEmailAndPassword(email, password);
             await finalizeLogin(userCred.user);
+
         } catch (err) {
-            // NEW: Capture Multi-Factor Challenge
             if (err.code === 'auth/multi-factor-auth-required') {
                 const resolver = err.resolver;
-                const hints = resolver.hints;
                 
-                // Initialize ReCaptcha for the SMS challenge
-                const recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { 'size': 'invisible' });
-                
+                // 1. Prepare MFA session and hint
                 const phoneInfoOptions = {
-                    multiFactorHint: hints[0],
+                    multiFactorHint: resolver.hints[0],
                     session: resolver.session
                 };
                 
+                const phoneAuthProvider = new firebase.auth.PhoneAuthProvider();
+                
                 try {
-                    const phoneAuthProvider = new firebase.auth.PhoneAuthProvider();
-                    const verificationId = await phoneAuthProvider.verifyPhoneNumber(phoneInfoOptions, recaptchaVerifier);
+                    // 2. Trigger the SMS code send
+                    const verificationId = await phoneAuthProvider.verifyPhoneNumber(
+                        phoneInfoOptions, 
+                        recaptchaVerifier
+                    );
                     
-                    const smsCode = prompt("SECURITY CHALLENGE: Enter the verification code sent to your registered device:");
+                    // 3. Prompt user for the code (You can replace this with a UI modal later)
+                    const smsCode = prompt("SECURITY CHALLENGE: Enter the 6-digit code sent to your device:");
                     
                     if (smsCode) {
                         const cred = firebase.auth.PhoneAuthProvider.credential(verificationId, smsCode);
                         const multiFactorAssertion = firebase.auth.PhoneMultiFactorGenerator.assertion(cred);
+                        
+                        // 4. Resolve the sign-in with the second factor
                         const mfaUserCred = await resolver.resolveSignIn(multiFactorAssertion);
                         await finalizeLogin(mfaUserCred.user);
                     } else {
-                        throw new Error("MFA Code required for access.");
+                        throw new Error("MFA Code was not provided.");
                     }
                 } catch (mfaErr) {
                     alert("MFA Failure: " + mfaErr.message);
