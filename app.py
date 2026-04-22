@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
-# Enterprise Rate Limiter: 100 requests/hour per IP to prevent brute-force/DoS
+# Enterprise Rate Limiter: 100 requests/hour per IP
 limiter = Limiter(
     key_func=get_remote_address,
     app=app,
@@ -23,7 +23,7 @@ limiter = Limiter(
 
 # --- Enterprise Policy Constants ---
 TENANT_ID = "Enterprise-Test-avvoo"
-MAX_CODE_SIZE = 50000  # Character limit to prevent memory exhaustion attacks
+MAX_CODE_SIZE = 50000 
 MALICIOUS_PATTERNS = [
     r"os\.system\(", r"subprocess\.", r"eval\(", r"exec\(", 
     r"socket\.", r"__import__", r"getattr\(", r"chmod", r"rm -rf"
@@ -33,9 +33,8 @@ MALICIOUS_PATTERNS = [
 firebase_key = os.getenv("FIREBASE_KEY")
 if not firebase_admin._apps:
     try:
-        if firebase_key.strip().startswith('{'):
+        if firebase_key and firebase_key.strip().startswith('{'):
             cred_dict = json.loads(firebase_key)
-            # Fix potential newline issues in environment variable private keys
             if "private_key" in cred_dict:
                 cred_dict["private_key"] = cred_dict["private_key"].replace("\\n", "\n")
             cred = credentials.Certificate(cred_dict)
@@ -53,10 +52,7 @@ def get_current_user():
         return None
     try:
         token = auth_header.split(" ")[1]
-        # check_revoked=False improves latency (TTFB) significantly
         decoded = auth.verify_id_token(token, check_revoked=False)
-        
-        # Identity Platform Multi-tenancy check
         if decoded.get('firebase', {}).get('tenant') != TENANT_ID:
             logger.warning(f"Unauthorized Tenant attempt: {decoded.get('firebase', {}).get('tenant')}")
             return None
@@ -69,11 +65,9 @@ def validate_language_match(code, lang):
     """Heuristic syntax analysis to prevent language/environment mismatch."""
     code_lower = code.lower()
     if lang == "python":
-        # Check for common JS keywords that don't belong in Python
         if "const " in code_lower or "let " in code_lower or "console.log" in code_lower:
             return False, "Snippet appears to be JavaScript/TypeScript, but environment is Python."
     if lang in ["javascript", "typescript"]:
-        # Check for Python-specific structural markers
         if "def " in code_lower and ":" in code_lower:
             return False, "Snippet appears to be Python, but environment is set to JavaScript/TypeScript."
     return True, ""
@@ -99,48 +93,54 @@ def signup_page():
 @app.route("/scan", methods=["POST"])
 @limiter.limit("10 per minute")
 def scan():
-    user = get_current_user()
-    if not user:
-        return jsonify({
-            "status": "REJECTED",
-            "error_code": "AUTH_FAILURE",
-            "audit_summary": "Invalid or expired security token."
-        }), 401
-
-    language = request.form.get("language", "").lower()
-    code = request.form.get("code", "")
-
-    # 1. Payload Size Check
-    if len(code) > MAX_CODE_SIZE:
-        return jsonify({
-            "status": "REJECTED",
-            "error_code": "SIZE_EXCEEDED",
-            "audit_summary": f"Payload exceeds character limit of {MAX_CODE_SIZE}."
-        }), 413
-
-
-    # 3. Environment/Language Mismatch Check
-    is_match, msg = validate_language_match(code, language)
-    if not is_match:
-        return jsonify({
-            "status": "REJECTED",
-            "error_code": "LANGUAGE_MISMATCH",
-            "severity": "LOW",
-            "audit_summary": msg,
-            "remediation": "Update the 'Environment Context' dropdown to match the input syntax."
-        }), 422
-
-    if not code.strip():
-        return jsonify({
-            "status": "REJECTED",
-            "error_code": "EMPTY_INPUT",
-            "audit_summary": "No source code detected for analysis."
-        }), 400
-
+    # WRAP EVERYTHING IN A TRY BLOCK TO PREVENT HTML ERROR PAGES
     try:
-        # Mocking the AI Audit call - replace with your actual LLM logic/utils
-        # from utils import analyze_code 
-        # result = analyze_code(code, language)
+        user = get_current_user()
+        if not user:
+            return jsonify({
+                "status": "REJECTED",
+                "error_code": "AUTH_FAILURE",
+                "audit_summary": "Invalid or expired security token."
+            }), 401
+
+        language = request.form.get("language", "").lower()
+        code = request.form.get("code", "")
+
+        # 1. Payload Size Check
+        if len(code) > MAX_CODE_SIZE:
+            return jsonify({
+                "status": "REJECTED",
+                "error_code": "SIZE_EXCEEDED",
+                "audit_summary": f"Payload exceeds character limit of {MAX_CODE_SIZE}."
+            }), 413
+
+        # 2. Malicious Pattern Check (WAF)
+        for pattern in MALICIOUS_PATTERNS:
+            if re.search(pattern, code, re.IGNORECASE):
+                return jsonify({
+                    "status": "REJECTED",
+                    "error_code": "MALICIOUS_INPUT_DETECTED",
+                    "audit_summary": "Prohibited system-level patterns detected."
+                }), 403
+
+        # 3. Environment/Language Mismatch Check
+        is_match, msg = validate_language_match(code, language)
+        if not is_match:
+            return jsonify({
+                "status": "REJECTED",
+                "error_code": "LANGUAGE_MISMATCH",
+                "severity": "LOW",
+                "remediation": "Update the 'Environment Context' dropdown to match the input syntax."
+            }), 422
+
+        if not code.strip():
+            return jsonify({
+                "status": "REJECTED",
+                "error_code": "EMPTY_INPUT",
+                "audit_summary": "No source code detected for analysis."
+            }), 400
+
+        # MOCKED RESULT - Ensure JSON consistency
         result = {
             "status": "COMPLETED",
             "audit_id": "SEC-7712",
@@ -148,12 +148,14 @@ def scan():
             "timestamp": "2026-04-22"
         }
         return jsonify(result)
+
     except Exception as e:
-        logger.error(f"Audit Engine Fault: {e}")
+        logger.error(f"CRITICAL ROUTE FAULT: {e}")
+        # FORCING JSON ERROR INSTEAD OF HTML PAGE
         return jsonify({
             "status": "FAULT",
-            "error_code": "ENGINE_INTERNAL_ERROR",
-            "audit_summary": "The audit engine encountered an unhandled logic fault."
+            "error_code": "SERVER_INTERNAL_ERROR",
+            "audit_summary": "The server encountered a critical logic error."
         }), 500
 
 if __name__ == "__main__":
