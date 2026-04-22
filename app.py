@@ -118,15 +118,6 @@ def scan():
             "audit_summary": f"Payload exceeds character limit of {MAX_CODE_SIZE}."
         }), 413
 
-    # 2. Malicious Pattern Scanning (WAF Logic)
-    for pattern in MALICIOUS_PATTERNS:
-        if re.search(pattern, code, re.IGNORECASE):
-            logger.error(f"MALICIOUS_INPUT: Policy violation by {user['email']}")
-            return jsonify({
-                "status": "REJECTED",
-                "error_code": "MALICIOUS_INPUT_DETECTED",
-                "audit_summary": "Prohibited system-level patterns or shell commands detected."
-            }), 403
 
     # 3. Environment/Language Mismatch Check
     is_match, msg = validate_language_match(code, language)
