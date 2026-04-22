@@ -40,7 +40,7 @@
         #result-card {
             display: none;
         }
-        /* Loading Overlay */
+        /* Loading Overlay to prevent the login redirect loop */
         #auth-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -141,27 +141,19 @@
     const auth = firebase.auth();
     auth.tenantId = "Enterprise-Test-avvoo"; 
 
-    // FIX: initialization tracking variable
-    let isInitialLoad = true;
+    // THE EXPERT FIX:
+    // We start with a flag that says "Wait, I haven't checked for a user yet."
+    let authInitialized = false;
 
     auth.onAuthStateChanged(async (user) => {
+        authInitialized = true;
         if (!user) {
-            // Only redirect if the SDK has finished its initial check
-            if (!isInitialLoad) {
-                window.location.href = "/login";
-            } else {
-                // If it's the first load and no user found, double check after a tiny delay
-                // or wait for the SDK to confirm absence. Expertly, we set isInitialLoad to false.
-                isInitialLoad = false;
-                // Check again to see if we truly have no user after initialization
-                setTimeout(() => {
-                    if (!auth.currentUser) window.location.href = "/login";
-                }, 500);
-            }
+            // Only redirect if we are CERTAIN no user exists after the SDK initializes
+            window.location.href = "/login";
         } else {
-            isInitialLoad = false;
             const token = await user.getIdToken();
             localStorage.setItem("token", token);
+            // Remove the loading screen once confirmed
             document.getElementById("auth-overlay").style.display = "none";
         }
     });
