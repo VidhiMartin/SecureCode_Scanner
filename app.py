@@ -88,9 +88,9 @@ def get_current_user():
         
         # 1. ENFORCE TENANT ISOLATION
         token_tenant = decoded.get('firebase', {}).get('tenant')
-        if token_tenant != TENANT_ID:
-            logger.warning(f"Access Denied: Tenant {token_tenant} tried to access {TENANT_ID}")
-            return None
+        #if token_tenant != TENANT_ID:
+            #logger.warning(f"Access Denied: Tenant {token_tenant} tried to access {TENANT_ID}")
+            #return None
             
         return decoded
     except Exception as e:
