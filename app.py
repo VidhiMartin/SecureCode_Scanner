@@ -107,13 +107,6 @@ def scan():
                 "audit_summary": f"Payload exceeds limit of {MAX_CODE_SIZE}."
             }), 413
 
-        for pattern in MALICIOUS_PATTERNS:
-            if re.search(pattern, code, re.IGNORECASE):
-                return jsonify({
-                    "status": "REJECTED",
-                    "error_code": "MALICIOUS_INPUT_DETECTED",
-                    "audit_summary": "Prohibited system-level patterns detected."
-                }), 403
 
         is_match, msg = validate_language_match(code, language)
         if not is_match:
