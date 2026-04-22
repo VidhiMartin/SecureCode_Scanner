@@ -1,11 +1,7 @@
 import os
 import requests
-import ast
-import subprocess
-import tempfile
+import json
 import logging
-import bleach # Run: pip install bleach
-
 
 logger = logging.getLogger(__name__)
 
@@ -15,28 +11,27 @@ MODEL = "nvidia/nemotron-3-super-120b-a12b:free"
 
 def analyze_code(code, language):
     if not code or len(code.strip()) < 10:
-        return {"analysis": [{"name": "Policy Error", "risk": "Insufficient code context."}]}
+        return {"analysis": [{"name": "Policy Error", "risk": "Insufficient code context.", "severity": "N/A", "fix": "Add more code."}]}
 
+    # Modified for JSON output
     prompt = f"""You are an expert security static analysis tool. 
 Task: Audit the following code for security vulnerabilities.
-Instructions:
-- Analyze objectively.
-- Return ONLY bullet points in the format below.
+Instructions: Return ONLY a JSON object with a key "analysis" containing a list of vulnerability objects.
 
-Format:
-- Vulnerability: <name>
-  Severity: <score>/10
-  CWE: <id>
-  Risk: <impact>
-  Fix: <mitigation>
+Each object must follow this structure:
+{{
+  "name": "vulnerability name",
+  "severity": "score/10",
+  "cwe": "CWE ID",
+  "risk": "impact description",
+  "fix": "mitigation steps"
+}}
 
 <user_code_context>
 Language: {language}
 Code:
 {code}
-</user_code_context>
-
-Audit Result:"""
+</user_code_context>"""
 
     headers = {
         "Authorization": f"Bearer {LLM_API_KEY}",
@@ -47,8 +42,11 @@ Audit Result:"""
 
     payload = {
         "model": MODEL,
-        "messages": [{"role": "system", "content": "You are a secure coding assistant."},
-                     {"role": "user", "content": prompt}],
+        "messages": [
+            {"role": "system", "content": "You are a secure coding assistant that only outputs valid JSON."},
+            {"role": "user", "content": prompt}
+        ],
+        "response_format": {"type": "json_object"},
         "temperature": 0.0
     }
 
@@ -56,31 +54,11 @@ Audit Result:"""
         r = requests.post(LLM_ENDPOINT, headers=headers, json=payload, timeout=30)
         r.raise_for_status()
         data = r.json()
-        raw_content = data["choices"][0]["message"]["content"].strip()
-        clean_content = bleach.clean(raw_content)
+        content = data["choices"][0]["message"]["content"].strip()
+        
+        # Parse result directly from JSON
+        return json.loads(content)
+        
     except Exception as e:
         logger.error(f"Secure API Link Failure: {e}")
         return {"error": "AI Audit Engine Unavailable"}
-
-    if "no vulnerabilities found" in clean_content.lower():
-        return {"analysis": "No critical vulnerabilities identified."}
-
-    lines = clean_content.split("\n")
-    formatted = []
-    current = {}
-
-    for line in lines:
-        line = line.strip()
-        if not line: continue
-        
-        if line.startswith("- Vulnerability:") or line.startswith("Vulnerability:"):
-            if current: formatted.append(current)
-            current = {"name": line.split(":", 1)[1].strip()}
-        elif ":" in line:
-            parts = line.split(":", 1)
-            key = parts[0].lower().strip().replace("- ", "")
-            if key in ["severity", "risk", "fix", "cwe"]:
-                current[key] = parts[1].strip()
-
-    if current: formatted.append(current)
-    return {"analysis": formatted if formatted else clean_content}
