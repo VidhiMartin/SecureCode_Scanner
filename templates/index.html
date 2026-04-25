@@ -47,12 +47,74 @@
             display: flex; justify-content: center; align-items: center;
             z-index: 9999;
         }
+
+        /* --- New Loading UI Styles --- */
+        #loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10, 10, 10, 0.9);
+            backdrop-filter: blur(8px);
+            z-index: 10000;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #00ff88;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .loader-container {
+            width: 300px;
+            text-align: center;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            margin: 20px 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #00ff88, #00bdff);
+            box-shadow: 0 0 15px #00ff88;
+            transition: width 0.5s ease;
+        }
+
+        .scanning-text {
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
     </style>
 </head>
 
 <body>
     <div id="auth-overlay">
         <i class="fas fa-shield-halved fa-spin" style="color:#00ff88; font-size:3rem;"></i>
+    </div>
+
+    <div id="loading-overlay">
+        <div class="loader-container">
+            <i class="fas fa-microchip fa-spin" style="font-size: 3rem; margin-bottom: 20px;"></i>
+            <div class="scanning-text" id="status-text">Analyzing Source Code...</div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="progress-fill"></div>
+            </div>
+            <div style="font-size: 0.7rem; color: #888;">AI Reasoning in Progress via NVIDIA Nemotron</div>
+        </div>
     </div>
 
     <div class="nav-header">
@@ -169,6 +231,9 @@
     const scanForm = document.getElementById("scanForm");
     const resultDisplay = document.getElementById("result");
     const resultCard = document.getElementById("result-card");
+    const loadingOverlay = document.getElementById("loading-overlay");
+    const progressFill = document.getElementById("progress-fill");
+    const statusText = document.getElementById("status-text");
 
     scanForm.onsubmit = async (e) => {
         e.preventDefault();
@@ -176,7 +241,22 @@
         if (!user) return window.location.href = "/login";
 
         const submitBtn = document.getElementById("submitBtn");
+        
+        // Show Loading UI
         submitBtn.disabled = true;
+        loadingOverlay.style.display = "flex";
+        progressFill.style.width = "0%";
+        
+        // Pseudo-progress animation
+        let progress = 0;
+        const progressInterval = setInterval(() => {
+            if (progress < 90) {
+                progress += Math.random() * 15;
+                progressFill.style.width = Math.min(progress, 90) + "%";
+                if (progress > 40) statusText.textContent = "Referencing CVE Databases...";
+                if (progress > 70) statusText.textContent = "Applying Heuristic Analysis...";
+            }
+        }, 600);
 
         try {
             const token = await user.getIdToken(true); 
@@ -189,12 +269,23 @@
             });
 
             const data = await response.json();
-            resultDisplay.textContent = JSON.stringify(data, null, 2);
-            Prism.highlightElement(resultDisplay);
-            resultCard.style.display = "block";
-            resultCard.scrollIntoView({ behavior: 'smooth' });
+            
+            // Finalize progress
+            clearInterval(progressInterval);
+            progressFill.style.width = "100%";
+            statusText.textContent = "Finalizing Report...";
+
+            setTimeout(() => {
+                loadingOverlay.style.display = "none";
+                resultDisplay.textContent = JSON.stringify(data, null, 2);
+                Prism.highlightElement(resultDisplay);
+                resultCard.style.display = "block";
+                resultCard.scrollIntoView({ behavior: 'smooth' });
+            }, 500);
 
         } catch (err) {
+            clearInterval(progressInterval);
+            loadingOverlay.style.display = "none";
             alert("Error: " + err.message);
         } finally {
             submitBtn.disabled = false;
