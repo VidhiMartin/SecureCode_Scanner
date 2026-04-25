@@ -17,20 +17,19 @@ MODEL = "nvidia/nemotron-3-super-120b-a12b:free"
 def analyze_code(code: str, language: str) -> Dict[str, Any]:
     """
     Performs a Deep Security Audit. 
-    Synchronized with app.py to provide consistent error structures without 'status' fields.
+    Returns a clean, flat JSON object for the detected vulnerability.
     """
     
-    # 1. Injection Prevention: Sanitize code to prevent escaping the XML tags
+    # 1. Injection Prevention
     sanitized_code = code.replace("</code_to_audit>", "[TAG_ESCAPED]")
 
     # 2. Hardened Prompt 
-    # Removed "status" requirement and added "vulnerable_code" field
+    # We removed the "analysis" wrapper and the list brackets [] from the schema.
     prompt = f"""[SYSTEM MANDATE]
 1. You are a Static Analysis Security Engine.
-2. If the code content clearly contradicts the specified language "{language}", 
-   return: {{"error_code": "LANGUAGE_MISMATCH"}}
-3. Otherwise, audit the code for vulnerabilities.
-4. Output ONLY valid JSON containing an "analysis" array. DO NOT include a "status" field.
+2. If the code contradicts the language "{language}", return: {{"error_code": "LANGUAGE_MISMATCH"}}
+3. Audit the code and return ONLY ONE flat JSON object representing the most severe vulnerability.
+4. DO NOT include "status", "analysis" keys, or square brackets.
 
 <code_to_audit>
 Language: {language}
@@ -38,18 +37,14 @@ Content:
 {sanitized_code}
 </code_to_audit>
 
-Expected Schema:
+Expected Schema (Output this format exactly):
 {{
-  "analysis": [
-    {{
-      "name": "vulnerability name",
-      "severity": "score/10",
-      "cwe": "CWE ID",
-      "vulnerable_code": "exact snippet or line of code from the input that is risky",
-      "risk": "impact description",
-      "fix": "mitigation steps"
-    }}
-  ]
+  "name": "vulnerability name",
+  "severity": "score/10",
+  "cwe": "CWE ID",
+  "vulnerable_code": "the exact line of code from the input",
+  "risk": "concise one line impact description",
+  "fix": "concise one line mitigation step"
 }}"""
 
     headers = {
@@ -64,24 +59,21 @@ Expected Schema:
         "messages": [
             {
                 "role": "system", 
-                "content": "You are a security backend. You only return JSON with an 'analysis' key. Do not include a 'status' field in your response."
+                "content": "You are a security backend. You only return a single flat JSON object. No wrappers, no status, no arrays."
             },
-            # Updated Few-Shot example to anchor the new response format
             {
                 "role": "user", 
-                "content": "Audit this (Language: python): eval(user_input)" 
+                "content": "Audit: eval(user_input)" 
             },
             {
                 "role": "assistant", 
                 "content": json.dumps({
-                    "analysis": [{
-                        "name": "Arbitrary Code Execution",
-                        "severity": "10/10",
-                        "cwe": "CWE-94",
-                        "vulnerable_code": "eval(user_input)",
-                        "risk": "Use of eval() allows execution of malicious scripts.",
-                        "fix": "Use literal_eval or avoid dynamic execution."
-                    }]
+                    "name": "Arbitrary Code Execution",
+                    "severity": "10/10",
+                    "cwe": "CWE-94",
+                    "vulnerable_code": "eval(user_input)",
+                    "risk": "Allows execution of malicious scripts.",
+                    "fix": "Avoid dynamic execution."
                 })
             },
             {"role": "user", "content": prompt}
@@ -96,21 +88,15 @@ Expected Schema:
         
         raw_content = response.json()["choices"][0]["message"]["content"].strip()
         
-        # Robust JSON extraction using Regex
         match = re.search(r'(\{.*\})', raw_content, re.DOTALL)
         if match:
             return json.loads(match.group(1))
         else:
             raise ValueError("Invalid AI Response Format")
 
-    except requests.exceptions.Timeout:
-        return {
-            "error_code": "TIMEOUT",
-            "audit_summary": "The security engine timed out."
-        }
     except Exception as e:
         logger.error(f"Analysis Engine Error: {type(e).__name__}")
         return {
             "error_code": "AI_ENGINE_OFFLINE",
-            "audit_summary": f"The AI service is currently unavailable: {str(e)}"
+            "details": str(e)
         }
