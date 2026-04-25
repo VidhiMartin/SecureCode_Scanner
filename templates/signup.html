@@ -7,38 +7,86 @@
     <link rel="stylesheet" href="/static/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        #mfa-modal {
-            display:none; position:fixed; top:0; left:0; width:100%; height:100%; 
-            background:rgba(10,10,10,0.95); z-index:9999; justify-content:center; align-items:center;
-            backdrop-filter: blur(10px);
+        /* Existing Auth Styles maintained */
+        #mfa-setup-modal {
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(10, 10, 10, 0.98); 
+            z-index: 99999; 
+            justify-content: center; 
+            align-items: center;
+            backdrop-filter: blur(15px);
+            animation: fadeIn 0.5s ease;
         }
         .mfa-card {
-            background:#1a1a1a; padding:40px; border-radius:15px; border:1px solid #00ff88;
-            text-align:center; max-width:400px; width:90%;
+            background: #1a1a1a;
+            padding: 40px;
+            border-radius: 15px;
+            border: 1px solid #00ff88;
+            text-align: center;
+            max-width: 420px;
+            width: 90%;
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.2);
         }
-        #qr-code-img { border: 10px solid white; border-radius: 10px; margin: 20px 0; width: 200px; }
-        .mfa-input { 
-            width:100%; background:rgba(255,255,255,0.05); border:1px solid #333; 
-            color:white; padding:12px; margin-bottom:20px; text-align:center; font-size:1.5rem; letter-spacing:5px;
+        #qr-code-display {
+            border: 12px solid white;
+            border-radius: 10px;
+            margin: 25px 0;
+            width: 220px;
+            height: 220px;
+        }
+        .mfa-input-field {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            color: #00ff88;
+            padding: 15px;
+            margin-bottom: 25px;
+            text-align: center;
+            font-size: 2rem;
+            letter-spacing: 8px;
+            border-radius: 8px;
+            outline: none;
+        }
+        .mfa-input-field:focus {
+            border-color: #00ff88;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
     </style>
 </head>
 <body class="auth-body">
 
-<div id="mfa-modal">
+<div id="mfa-setup-modal">
     <div class="mfa-card">
-        <h2 style="color:#00ff88;"><i class="fas fa-qrcode"></i> Link Authenticator</h2>
-        <p style="font-size:0.9rem; color:#aaa;">Scan this code with Google Authenticator or Authy to enable 2FA.</p>
-        <img id="qr-code-img" src="" alt="QR Setup">
-        <input type="text" id="mfa-code" class="mfa-input" placeholder="000000" maxlength="6">
-        <button class="btn-primary" onclick="verifyAndComplete()">Verify & Initialize</button>
+        <div class="auth-icon" style="color:#00ff88; margin-bottom: 20px;">
+            <i class="fas fa-shield-alt fa-3x"></i>
+        </div>
+        <h2 style="color: #fff; margin-bottom: 10px;">Enable 2FA</h2>
+        <p style="color: #888; font-size: 0.9rem;">Scan this QR with Google Authenticator or Authy to secure your operative identity.</p>
+        
+        <img id="qr-code-display" src="" alt="MFA QR Code">
+        
+        <input type="text" id="mfa-verification-code" class="mfa-input-field" placeholder="000000" maxlength="6">
+        
+        <button class="btn-primary" id="mfa-verify-btn" onclick="verifyMFASetup()">
+            <i class="fas fa-check-circle"></i> Verify & Complete Setup
+        </button>
     </div>
 </div>
 
-<div class="auth-container" id="main-signup">
+<div class="auth-container" id="signup-form-container">
     <div class="auth-card">
         <div class="auth-header">
-            <div class="auth-icon"><i class="fas fa-user-plus"></i></div>
+            <div class="auth-icon">
+                <i class="fas fa-user-plus"></i>
+            </div>
             <h1 class="logo">Secure Code Scanner</h1>
             <p class="subtitle">Create a new secure operative identity</p>
         </div>
@@ -60,6 +108,9 @@
                 <i class="fas fa-user-shield"></i> Initialize Account
             </button>
         </form>
+        
+        <div id="recaptcha-container"></div>
+
         <div class="auth-footer">
             <p>Existing operative? <a href="/login">Access Vault</a></p>
         </div>
@@ -70,70 +121,98 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 
 <script>
-const firebaseConfig = {
-    apiKey: "AIzaSyD9llGi3Rq4eTgOA4QLI2hGK00v-jx0bCs",
-    authDomain: "code-scanner-91d48.firebaseapp.com",
-    projectId: "code-scanner-91d48"
-};
+    const firebaseConfig = {
+        apiKey: "AIzaSyD9llGi3Rq4eTgOA4QLI2hGK00v-jx0bCs",
+        authDomain: "code-scanner-91d48.firebaseapp.com",
+        projectId: "code-scanner-91d48"
+    };
 
-if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-auth.tenantId = "Enterprise-Test-avvoo";
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    auth.tenantId = "Enterprise-Test-avvoo";
 
-let pendingEmail = "";
+    let globalEmail = "";
 
-document.getElementById("signupForm").onsubmit = async (e) => {
-    e.preventDefault();
-    const btn = document.getElementById("submitBtn");
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-    const confirmPass = document.getElementById("confirm-password").value;
+    document.getElementById("signupForm").onsubmit = async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById("submitBtn");
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+        const confirmPass = document.getElementById("confirm-password").value;
 
-    if (password !== confirmPass) { alert("Encryption mismatch!"); return; }
+        if (password !== confirmPass) {
+            alert("Encryption mismatch: Passwords do not match.");
+            return;
+        }
 
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-    btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Initializing...';
+        btn.disabled = true;
 
-    try {
-        await auth.createUserWithEmailAndPassword(email, password);
-        pendingEmail = email;
+        try {
+            // 1. Create the Firebase Account
+            const userCred = await auth.createUserWithEmailAndPassword(email, password);
+            globalEmail = email;
+
+            // 2. Trigger Backend MFA Setup
+            const mfaResponse = await fetch('/mfa/setup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email })
+            });
+
+            if (!mfaResponse.ok) throw new Error("MFA provision service unavailable.");
+
+            const mfaData = await mfaResponse.json();
+            
+            // 3. Show the QR Modal
+            document.getElementById('qr-code-display').src = `data:image/png;base64,${mfaData.qr_code}`;
+            document.getElementById('signup-form-container').style.display = 'none';
+            document.getElementById('mfa-setup-modal').style.display = 'flex';
+
+        } catch (err) {
+            console.error("Signup Error:", err);
+            alert("Registration Failed: " + err.message);
+            btn.innerHTML = '<i class="fas fa-user-shield"></i> Initialize Account';
+            btn.disabled = false;
+        }
+    };
+
+    async function verifyMFASetup() {
+        const code = document.getElementById('mfa-verification-code').value;
+        const verifyBtn = document.getElementById('mfa-verify-btn');
         
-        // Trigger Backend MFA Setup
-        const res = await fetch('/mfa/setup', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ email: email })
-        });
-        const data = await res.json();
-        
-        document.getElementById('qr-code-img').src = `data:image/png;base64,${data.qr_code}`;
-        document.getElementById('main-signup').style.display = 'none';
-        document.getElementById('mfa-modal').style.display = 'flex';
+        if (code.length !== 6) {
+            alert("Please enter the 6-digit security code.");
+            return;
+        }
 
-    } catch (err) {
-        alert("Registration Failed: " + err.message);
-        btn.innerHTML = '<i class="fas fa-user-shield"></i> Initialize Account';
-        btn.disabled = false;
+        verifyBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+
+        try {
+            const response = await fetch('/mfa/verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: globalEmail, code: code })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                // THE HANDSHAKE FIX: Ensure token is set before moving to scanner
+                const token = await auth.currentUser.getIdToken(true);
+                localStorage.setItem("token", token);
+                
+                alert("Security Verified. Entering Secure Environment...");
+                window.location.href = "/scanner";
+            } else {
+                alert("Verification failed: " + (result.message || "Invalid code"));
+                verifyBtn.innerHTML = '<i class="fas fa-check-circle"></i> Verify & Complete Setup';
+            }
+        } catch (err) {
+            alert("Server Error during MFA verification.");
+            verifyBtn.innerHTML = '<i class="fas fa-check-circle"></i> Verify & Complete Setup';
+        }
     }
-};
-
-async function verifyAndComplete() {
-    const code = document.getElementById('mfa-code').value;
-    const res = await fetch('/mfa/verify', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ email: pendingEmail, code: code })
-    });
-    const data = await res.json();
-
-    if (data.success) {
-        const token = await auth.currentUser.getIdToken(true);
-        localStorage.setItem("token", token);
-        window.location.href = "/scanner";
-    } else {
-        alert("Verification failed. Check your app code.");
-    }
-}
 </script>
 </body>
 </html>
