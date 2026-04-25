@@ -8,3 +8,5 @@ google-auth
 cachecontrol
 bleach
 flask-limiter
+pyotp
+qrcode
