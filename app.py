@@ -2,11 +2,15 @@ import os
 import json
 import re
 import logging
+import pyotp
+import qrcode
+import io
+import base64
 from flask import Flask, render_template, request, jsonify, redirect
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 import firebase_admin
-from firebase_admin import credentials, auth
+from firebase_admin import credentials, auth, firestore # Added firestore
 from utils import analyze_code
 
 # --- Security Configuration & Logging ---
@@ -32,6 +36,8 @@ MALICIOUS_PATTERNS = [
 
 # --- Firebase Admin Initialization ---
 firebase_key = os.getenv("FIREBASE_KEY")
+db = None # Initialize Firestore Reference
+
 if not firebase_admin._apps:
     try:
         if firebase_key and firebase_key.strip().startswith('{'):
@@ -42,9 +48,69 @@ if not firebase_admin._apps:
         else:
             cred = credentials.Certificate(firebase_key)
         firebase_admin.initialize_app(cred)
+        db = firestore.client() # Connect to Firestore
         logger.info("Firebase Security Environment Initialized Successfully")
     except Exception as e:
         logger.error(f"FATAL: Firebase Initialization Failed: {e}")
+
+# --- NEW MFA LOGIC ROUTES ---
+
+@app.route('/mfa/setup', methods=['POST'])
+def mfa_setup():
+    try:
+        data = request.json
+        email = data.get("email")
+        if not email: return jsonify({"error": "Email required"}), 400
+
+        secret = pyotp.random_base32()
+        
+        # Store secret in Firestore
+        db.collection("users").document(email).set({
+            "mfa_secret": secret,
+            "mfa_enabled": False
+        }, merge=True)
+        
+        totp = pyotp.totp.TOTP(secret)
+        provisioning_uri = totp.provisioning_uri(name=email, issuer_name="SecureCodeScanner")
+        
+        img = qrcode.make(provisioning_uri)
+        buf = io.BytesIO()
+        img.save(buf, format="PNG")
+        qr_b64 = base64.b64encode(buf.getvalue()).decode()
+        
+        return jsonify({"qr_code": qr_b64, "secret": secret})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/mfa/verify', methods=['POST'])
+def mfa_verify():
+    try:
+        data = request.json
+        email = data.get("email")
+        code = data.get("code")
+        
+        user_doc = db.collection("users").document(email).get()
+        if not user_doc.exists: return jsonify({"success": False}), 404
+        
+        secret = user_doc.to_dict().get("mfa_secret")
+        totp = pyotp.TOTP(secret)
+        
+        if totp.verify(code):
+            db.collection("users").document(email).update({"mfa_enabled": True})
+            return jsonify({"success": True})
+        return jsonify({"success": False}), 401
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/mfa/status', methods=['POST'])
+def mfa_status():
+    email = request.json.get("email")
+    user_doc = db.collection("users").document(email).get()
+    if user_doc.exists and user_doc.to_dict().get("mfa_enabled"):
+        return jsonify({"enabled": True})
+    return jsonify({"enabled": False})
+
+# --- EXISTING ROUTES (UNTOUCHED) ---
 
 def get_current_user():
     auth_header = request.headers.get("Authorization")
@@ -107,7 +173,6 @@ def scan():
                 "audit_summary": f"Payload exceeds limit of {MAX_CODE_SIZE}."
             }), 413
 
-
         is_match, msg = validate_language_match(code, language)
         if not is_match:
             return jsonify({
@@ -123,7 +188,6 @@ def scan():
                 "audit_summary": "No source code detected."
             }), 400
 
-        # REAL SCAN CALL
         result = analyze_code(code, language)
         return jsonify(result)
 
