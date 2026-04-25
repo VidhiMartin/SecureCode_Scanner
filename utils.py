@@ -17,20 +17,20 @@ MODEL = "nvidia/nemotron-3-super-120b-a12b:free"
 def analyze_code(code: str, language: str) -> Dict[str, Any]:
     """
     Performs a Deep Security Audit. 
-    Synchronized with app.py to provide consistent error structures.
+    Synchronized with app.py to provide consistent error structures without 'status' fields.
     """
     
     # 1. Injection Prevention: Sanitize code to prevent escaping the XML tags
     sanitized_code = code.replace("</code_to_audit>", "[TAG_ESCAPED]")
 
     # 2. Hardened Prompt 
-    # Includes a "Language Verification" step to back up app.py logic
+    # Removed "status" requirement and added "vulnerable_code" field
     prompt = f"""[SYSTEM MANDATE]
 1. You are a Static Analysis Security Engine.
 2. If the code content clearly contradicts the specified language "{language}", 
-   return: {{"status": "REJECTED", "error_code": "LANGUAGE_MISMATCH"}}
+   return: {{"error_code": "LANGUAGE_MISMATCH"}}
 3. Otherwise, audit the code for vulnerabilities.
-4. Output ONLY valid JSON. 
+4. Output ONLY valid JSON containing an "analysis" array. DO NOT include a "status" field.
 
 <code_to_audit>
 Language: {language}
@@ -40,12 +40,12 @@ Content:
 
 Expected Schema:
 {{
-  "status": "SUCCESS",
   "analysis": [
     {{
       "name": "vulnerability name",
       "severity": "score/10",
       "cwe": "CWE ID",
+      "vulnerable_code": "exact snippet or line of code from the input that is risky",
       "risk": "impact description",
       "fix": "mitigation steps"
     }}
@@ -64,9 +64,9 @@ Expected Schema:
         "messages": [
             {
                 "role": "system", 
-                "content": "You are a security backend. You only return JSON. No conversation."
+                "content": "You are a security backend. You only return JSON with an 'analysis' key. Do not include a 'status' field in your response."
             },
-            # Few-Shot example to anchor the response format
+            # Updated Few-Shot example to anchor the new response format
             {
                 "role": "user", 
                 "content": "Audit this (Language: python): eval(user_input)" 
@@ -74,11 +74,11 @@ Expected Schema:
             {
                 "role": "assistant", 
                 "content": json.dumps({
-                    "status": "SUCCESS",
                     "analysis": [{
                         "name": "Arbitrary Code Execution",
                         "severity": "10/10",
                         "cwe": "CWE-94",
+                        "vulnerable_code": "eval(user_input)",
                         "risk": "Use of eval() allows execution of malicious scripts.",
                         "fix": "Use literal_eval or avoid dynamic execution."
                     }]
@@ -105,14 +105,12 @@ Expected Schema:
 
     except requests.exceptions.Timeout:
         return {
-            "status": "FAULT",
             "error_code": "TIMEOUT",
             "audit_summary": "The security engine timed out."
         }
     except Exception as e:
         logger.error(f"Analysis Engine Error: {type(e).__name__}")
         return {
-            "status": "FAULT",
             "error_code": "AI_ENGINE_OFFLINE",
-            "audit_summary": "The AI service is currently unavailable."
+            "audit_summary": f"The AI service is currently unavailable: {str(e)}"
         }
